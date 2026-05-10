@@ -1,0 +1,27 @@
+# Local agent/workspace metadata
+.codex/
+AGENTS.md
+
+# Project planning documents generated from source materials
+spec.md
+
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Environment and local secrets
+.env
+.env.*
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
