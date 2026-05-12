@@ -1,0 +1,15 @@
+name: carrada_ra_yolo_train_template
+task: train
+implementation: ultralytics
+enabled: false
+dataset:
+  config: configs/dataset/carrada_ra_smoke.yaml
+initial_weights: weights/yolo_pretrained.pt
+allow_weight_download: false
+imgsz: 640
+epochs: 50
+batch: 8
+device: cpu
+output:
+  root: runs
+description: Training entry is retained for Stage1, but training is gated until data and weights are explicitly confirmed.

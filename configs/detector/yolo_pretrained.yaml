@@ -1,0 +1,7 @@
+source: yolo_pretrained
+weights: weights/yolo_pretrained.pt
+imgsz: 640
+conf: 0.25
+iou: 0.7
+device: cpu
+description: External YOLO weights for adapter and unified detection-output validation.

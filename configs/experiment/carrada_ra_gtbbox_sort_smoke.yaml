@@ -1,0 +1,25 @@
+experiment_name: carrada_ra_gtbbox_sort_smoke
+dataset:
+  config: configs/dataset/carrada_ra_smoke.yaml
+detector:
+  config: configs/detector/gt_bbox.yaml
+tracker:
+  config: configs/tracker/sort.yaml
+evaluation:
+  split: test
+  iou_threshold: 0.5
+  detection_metrics:
+    - precision
+    - recall
+    - f1
+    - map50
+  tracking_metrics:
+    - mota
+    - idf1
+    - id_switches
+    - track_fragmentation
+visualization:
+  enabled: true
+  max_frames_per_sequence: 20
+output:
+  root: runs

@@ -1,0 +1,6 @@
+name: sort
+min_confidence: 0.0
+max_age: 3
+min_hits: 1
+iou_threshold: 0.3
+group_by_class: true

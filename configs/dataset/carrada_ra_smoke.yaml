@@ -1,0 +1,26 @@
+name: carrada
+representation: range_angle
+root: data/carrada
+prepared_root: data/processed/carrada_ra_smoke
+splits:
+  strategy: official_or_sequence_level
+  seed: 42
+  max_sequences: 2
+normalization:
+  method: minmax
+  output_dtype: uint8
+  channels: 3
+annotations:
+  preferred_source: mask_bbox
+  fallback_source: point_expand
+  point_expand:
+    width: 12
+    height: 12
+  empty_frames: keep
+classes:
+  - id: 0
+    name: pedestrian
+  - id: 1
+    name: cyclist
+  - id: 2
+    name: car
