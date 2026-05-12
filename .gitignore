@@ -2,8 +2,17 @@
 .codex/
 AGENTS.md
 
-# Project planning documents generated from source materials
-spec.md
+# Local planning drafts generated from source materials
+/spec.md
+
+# Data, model weights, and experiment outputs
+data/
+runs/
+outputs/
+weights/
+*.pt
+*.pth
+*.onnx
 
 # Python caches and virtual environments
 __pycache__/
