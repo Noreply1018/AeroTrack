@@ -8,7 +8,7 @@
 
 ![AeroTrack CPU 诊断闭环单帧大图](runs/carrada_ra_gtbbox_sort_smoke/showcase/slides/slide_01_large_triptych.png)
 
-这张图可以作为最终展示的主图。它只放一个典型帧，避免小图密集堆叠；左侧是 GT 标注，中间是由 `gt_bbox` 转换得到的诊断检测框，右侧是 SORT 输出的跟踪结果。
+这张图可以作为最终展示的主图。它只放一个典型帧，避免小图密集堆叠；左侧是全局 Range-Angle 雷达图，中间是目标区域放大图，右侧是同帧 camera reference。雷达图中的三色轮廓分别对应 GT 标注、由 `gt_bbox` 转换得到的诊断检测框和 SORT 输出的跟踪结果。
 
 它能说明三件事：
 
@@ -22,7 +22,7 @@
 
 ![AeroTrack SORT 连续帧跟踪展示](runs/carrada_ra_gtbbox_sort_smoke/showcase/slides/slide_02_tracking_sequence.png)
 
-这张图用于讲跟踪部分。它比密集总览图更适合答辩，因为画面只保留连续帧跟踪输出，观众可以直接观察 `track_id` 如何随时间出现在不同帧里。
+这张图用于讲跟踪部分。它比密集总览图更适合答辩，因为画面保留连续帧 RA 跟踪裁剪，并为每帧配同帧 camera reference。观众可以直接观察 `track_id` 如何随时间出现在不同帧里，同时不会被抽象雷达图完全挡住理解。
 
 这张图只说明 SORT 链路已经输出序列级轨迹。身份稳定性审计已经完成，但当前评估实现仍未启用 IDF1、ID switches 和 track fragmentation，因此这些指标继续保持 unavailable。
 
@@ -70,7 +70,7 @@
 
 ![AeroTrack 连续轨迹条带图](runs/carrada_ra_gtbbox_sort_smoke/showcase/slides/slide_06_track_strip.png)
 
-这张图比四帧跟踪页更适合展示“同一个 ID 随时间延续”。它把同一 track ID 的多个连续帧排成条带，适合在答辩中说明项目已经从单帧框推进到序列级轨迹复核。
+这张图比四帧跟踪页更适合展示“同一个 ID 随时间延续”。它把同一 track ID 的多个连续 RA 裁剪和对应相机帧排成条带，适合在答辩中说明项目已经从单帧框推进到序列级轨迹复核。
 
 ### 身份稳定性审计
 

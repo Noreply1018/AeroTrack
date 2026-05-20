@@ -80,30 +80,40 @@ def _make_large_triptych(
     image = Image.new("RGB", CANVAS, BACKGROUND)
     draw = ImageDraw.Draw(image)
     title_font = _font(46)
-    label_font = _font(27)
     body_font = _font(23)
     draw.text((64, 44), "AeroTrack CPU Diagnostic Loop", fill=TEXT, font=title_font)
-    draw.text((64, 108), "High-contrast Range-Angle render with readable target zooms. Detector source: gt_bbox, not YOLO.", fill=MUTED, font=body_font)
+    draw.text((64, 108), "Full RA context, magnified target evidence, and same-frame camera reference. Detector source: gt_bbox, not YOLO.", fill=MUTED, font=body_font)
 
-    panels = [
-        ("GT annotation", _rows_for_frame(annotations, frame), GT),
-        ("gt_bbox detection", _rows_for_frame(detections, frame), DET),
-        ("SORT track output", _rows_for_frame(tracks, frame), TRACK),
+    layers = [
+        (_rows_for_frame(tracks, frame), TRACK, 6),
+        (_rows_for_frame(detections, frame), DET, 2),
+        (_rows_for_frame(annotations, frame), GT, -2),
     ]
     source = _source_image(prepared_root, frame, source_lookup)
     target_box = _primary_box(_rows_for_frame(detections, frame))
-    x_positions = [66, 566, 1066]
-    for x, (label, rows, color) in zip(x_positions, panels, strict=True):
-        full = _render_panel(source, rows, (340, 340), color)
-        zoom = _crop_zoom(source, target_box, rows, color, output_size=(420, 360))
-        image.paste(full, (x, 210))
-        image.paste(zoom, (x, 565))
-        draw.rectangle((x, 210, x + 340, 550), outline=PANEL_BORDER, width=2)
-        draw.rectangle((x, 565, x + 420, 925), outline=color, width=4)
-        draw.text((x, 166), label, fill=TEXT, font=label_font)
-        draw.text((x, 934), _panel_detail(label, rows), fill=MUTED, font=_font(18))
 
-    draw.text((64, 950), "Use this slide to explain the data -> diagnostic detection -> tracking handoff. Zooms are rendered from the source frame.", fill=MUTED, font=_font(20))
+    full = _render_panel(source, [], (430, 430), ACCENT)
+    for layer_rows, color, expand in layers:
+        scaled = [_expanded_row(_scaled_row(row, 430 / source.width, 430 / source.height), expand) for row in layer_rows]
+        _draw_boxes(full, scaled, color, width=4)
+    image.paste(full, (80, 220))
+    draw.rectangle((80, 220, 510, 650), outline=PANEL_BORDER, width=2)
+
+    zoom = _crop_zoom_layers(source, target_box, layers, output_size=(560, 430))
+    image.paste(zoom, (560, 220))
+    draw.rectangle((560, 220, 1120, 650), outline=ACCENT, width=4)
+    _paste_camera_reference(draw, image, prepared_root, frame, (1180, 220, 1540, 490), label="Camera reference")
+
+    draw.text((80, 675), "Full RA frame", fill=TEXT, font=_font(23))
+    draw.text((560, 675), "Magnified target region", fill=TEXT, font=_font(23))
+    legend_y = 720
+    for label, color in [("GT annotation", GT), ("gt_bbox detection", DET), ("SORT track output", TRACK)]:
+        draw.rectangle((560, legend_y, 590, legend_y + 20), fill=color)
+        draw.text((605, legend_y - 4), label, fill=TEXT, font=_font(23))
+        legend_y += 45
+    draw.text((80, 790), f"Frame {frame['sequence_id']} / {frame['frame_id']}", fill=TEXT, font=_font(24))
+    draw.text((80, 842), "This slide is for the pipeline handoff: GT annotation -> diagnostic detection -> SORT track output.", fill=MUTED, font=_font(21))
+    draw.text((80, 874), "The camera image is a same-frame reference to make the abstract RA evidence easier to explain.", fill=MUTED, font=_font(21))
     image.save(output_dir / "slide_01_large_triptych.png")
 
 
@@ -120,21 +130,22 @@ def _make_tracking_focus(
     label_font = _font(22)
     body_font = _font(22)
     draw.text((64, 44), "SORT Tracking Across Frames", fill=TEXT, font=title_font)
-    draw.text((64, 108), "Zoomed target views make the track boxes and IDs readable in presentation.", fill=MUTED, font=body_font)
+    draw.text((64, 108), "Each frame pairs the RA track crop with a same-frame camera reference.", fill=MUTED, font=body_font)
     x_positions = [70, 450, 830, 1210]
     for x, frame in zip(x_positions, frames, strict=False):
         source = _source_image(prepared_root, frame, source_lookup)
         rows = _rows_for_frame(tracks, frame)
         box = _primary_box(rows)
-        zoom = _crop_zoom(source, box, rows, TRACK, output_size=(300, 300))
-        image.paste(zoom, (x, 245))
-        draw.rectangle((x, 245, x + 300, 545), outline=TRACK, width=3)
-        draw.text((x, 575), f"Frame {frame['frame_id']}", fill=TEXT, font=label_font)
-        draw.text((x, 605), _panel_detail("SORT track output", rows), fill=MUTED, font=_font(18))
-    draw.line((64, 700, 1536, 700), fill=(224, 228, 235), width=2)
-    draw.text((64, 748), "What to say", fill=ACCENT, font=_font(28))
-    draw.text((64, 800), "SORT consumes the same detections frame by frame and emits track IDs for sequence-level review.", fill=TEXT, font=body_font)
-    draw.text((64, 840), "Identity stability has been audited; IDF1/ID-switch/fragmentation metrics still need evaluation wiring.", fill=TEXT, font=body_font)
+        zoom = _crop_zoom(source, box, rows, TRACK, output_size=(300, 250))
+        image.paste(zoom, (x, 220))
+        draw.rectangle((x, 220, x + 300, 470), outline=TRACK, width=3)
+        _paste_camera_reference(draw, image, prepared_root, frame, (x, 488, x + 300, 660), label=None)
+        draw.text((x, 690), f"Frame {frame['frame_id']}", fill=TEXT, font=label_font)
+        draw.text((x, 720), _panel_detail("SORT track output", rows), fill=MUTED, font=_font(18))
+    draw.line((64, 790, 1536, 790), fill=(224, 228, 235), width=2)
+    draw.text((64, 830), "What to say", fill=ACCENT, font=_font(28))
+    draw.text((64, 878), "SORT consumes the same detections frame by frame and emits track IDs for sequence-level review.", fill=TEXT, font=body_font)
+    draw.text((64, 918), "Camera references are for human orientation only; tracking still runs on RA detections.", fill=TEXT, font=body_font)
     image.save(output_dir / "slide_02_tracking_sequence.png")
 
 
@@ -219,17 +230,7 @@ def _make_single_target_slide(
     zoom = _crop_zoom_layers(source, target_box, display_layers, output_size=(560, 430))
     image.paste(zoom, (560, 220))
     draw.rectangle((560, 220, 1120, 650), outline=ACCENT, width=4)
-    camera = _camera_image(prepared_root, frame)
-    if camera:
-        camera = ImageOps.contain(camera.convert("RGB"), (360, 270), Image.Resampling.LANCZOS)
-        camera_panel = Image.new("RGB", (360, 270), (245, 247, 250))
-        camera_panel.paste(camera, ((360 - camera.width) // 2, (270 - camera.height) // 2))
-        image.paste(camera_panel, (1180, 220))
-        draw.rectangle((1180, 220, 1540, 490), outline=PANEL_BORDER, width=2)
-        draw.text((1180, 508), "Camera reference", fill=MUTED, font=_font(19))
-    else:
-        draw.rectangle((1180, 220, 1540, 490), outline=PANEL_BORDER, width=2)
-        draw.text((1215, 340), "Camera reference unavailable", fill=MUTED, font=_font(19))
+    _paste_camera_reference(draw, image, prepared_root, frame, (1180, 220, 1540, 490), label="Camera reference")
 
     draw.text((80, 675), "Full RA frame", fill=TEXT, font=_font(23))
     draw.text((560, 675), "Magnified target region", fill=TEXT, font=_font(23))
@@ -260,14 +261,16 @@ def _make_track_strip_slide(
     for frame in extended:
         source = _source_image(prepared_root, frame, source_lookup)
         rows = _rows_for_frame(tracks, frame)
-        zoom = _crop_zoom(source, _primary_box(rows), rows, TRACK, output_size=(220, 260))
-        image.paste(zoom, (x, 260))
-        draw.rectangle((x, 260, x + 220, 520), outline=TRACK, width=3)
-        draw.text((x, 545), frame["frame_id"], fill=TEXT, font=_font(21))
-        draw.text((x, 575), _panel_detail("SORT track output", rows), fill=MUTED, font=_font(17))
+        zoom = _crop_zoom(source, _primary_box(rows), rows, TRACK, output_size=(220, 220))
+        image.paste(zoom, (x, 230))
+        draw.rectangle((x, 230, x + 220, 450), outline=TRACK, width=3)
+        _paste_camera_reference(draw, image, prepared_root, frame, (x, 468, x + 220, 600), label=None)
+        draw.text((x, 625), frame["frame_id"], fill=TEXT, font=_font(21))
+        draw.text((x, 655), _panel_detail("SORT track output", rows), fill=MUTED, font=_font(17))
         x += 245
-    draw.line((64, 700, 1536, 700), fill=(224, 228, 235), width=2)
-    draw.text((64, 752), "Use this slide when you need more than four frames but still want each target box readable.", fill=TEXT, font=_font(24))
+    draw.line((64, 735, 1536, 735), fill=(224, 228, 235), width=2)
+    draw.text((64, 780), "Use this slide when you need more than four frames but still want each target box readable.", fill=TEXT, font=_font(24))
+    draw.text((64, 820), "The paired camera strip keeps the audience grounded while the RA crops show the track evidence.", fill=MUTED, font=_font(22))
     image.save(output_dir / "slide_06_track_strip.png")
 
 
@@ -341,6 +344,32 @@ def _render_panel(
     scaled_rows = [_scaled_row(row, size[0] / original_w, size[1] / original_h) for row in rows]
     _draw_boxes(panel, scaled_rows, color, width=4)
     return panel
+
+
+def _paste_camera_reference(
+    draw: ImageDraw.ImageDraw,
+    canvas: Image.Image,
+    prepared_root: Path,
+    frame: dict[str, str],
+    box: tuple[int, int, int, int],
+    *,
+    label: str | None,
+) -> None:
+    x1, y1, x2, y2 = box
+    width = x2 - x1
+    height = y2 - y1
+    panel = Image.new("RGB", (width, height), (245, 247, 250))
+    camera = _camera_image(prepared_root, frame)
+    if camera:
+        camera = ImageOps.contain(camera.convert("RGB"), (width, height), Image.Resampling.LANCZOS)
+        panel.paste(camera, ((width - camera.width) // 2, (height - camera.height) // 2))
+    else:
+        fallback_draw = ImageDraw.Draw(panel)
+        fallback_draw.text((18, max(12, height // 2 - 10)), "Camera reference unavailable", fill=MUTED, font=_font(16))
+    canvas.paste(panel, (x1, y1))
+    draw.rectangle(box, outline=PANEL_BORDER, width=2)
+    if label:
+        draw.text((x1, y2 + 18), label, fill=MUTED, font=_font(19))
 
 
 def _crop_zoom(
