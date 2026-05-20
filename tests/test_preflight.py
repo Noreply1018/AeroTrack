@@ -15,6 +15,18 @@ def test_preflight_stops_at_dataset_gate_when_carrada_missing() -> None:
     assert result.exit_code == 3
 
 
+def test_preflight_stops_when_carrada_metadata_missing(tmp_path: Path) -> None:
+    root = tmp_path / "carrada"
+    root.mkdir()
+    config = load_experiment_config("configs/experiment/carrada_ra_gtbbox_sort_smoke.yaml")
+    config["dataset"]["root"] = str(root)
+
+    result = run_preflight(config)
+
+    assert result.has_gate
+    assert any(check.name == "dataset.files" for check in result.checks)
+
+
 def test_preflight_stops_at_yolo_weight_gate_when_weights_missing() -> None:
     config = load_experiment_config("configs/experiment/carrada_ra_yolopretrained_sort_smoke.yaml")
     config["dataset"]["root"] = "__missing_carrada_for_test__"

@@ -29,11 +29,16 @@ def experiment_dir(config: dict[str, Any]) -> Path:
 
 def prepare_experiment_dir(config: dict[str, Any]) -> Path:
     run_dir = experiment_dir(config)
-    run_dir.mkdir(parents=True, exist_ok=True)
-    for subdir in EXPERIMENT_SUBDIRS:
-        (run_dir / subdir).mkdir(parents=True, exist_ok=True)
+    ensure_experiment_subdirs(run_dir)
     archived = dict(config)
     archived.setdefault("run_metadata", {})
     archived["run_metadata"]["archived_at_utc"] = datetime.now(timezone.utc).isoformat()
     write_yaml(run_dir / "config.yaml", archived)
+    return run_dir
+
+
+def ensure_experiment_subdirs(run_dir: Path) -> Path:
+    run_dir.mkdir(parents=True, exist_ok=True)
+    for subdir in EXPERIMENT_SUBDIRS:
+        (run_dir / subdir).mkdir(parents=True, exist_ok=True)
     return run_dir

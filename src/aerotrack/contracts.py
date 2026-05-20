@@ -26,6 +26,21 @@ ANNOTATION_FIELDS = [
     "y2",
 ]
 
+CONVERSION_RECORD_FIELDS = [
+    "sample_id",
+    "sequence_id",
+    "frame_id",
+    "object_id",
+    "raw_label",
+    "class_id",
+    "class_name",
+    "bbox_source",
+    "image_source",
+    "image_path",
+    "label_path",
+    "notes",
+]
+
 DETECTION_FIELDS = [
     "sequence_id",
     "frame_id",
@@ -35,6 +50,21 @@ DETECTION_FIELDS = [
     "y1",
     "x2",
     "y2",
+]
+
+SUMMARY_FIELDS = [
+    "experiment_name",
+    "detection_source",
+    "split",
+    "num_sequences",
+    "num_frames",
+    "precision",
+    "recall",
+    "f1",
+    "map50",
+    "mota",
+    "idf1_status",
+    "notes",
 ]
 
 TRACK_FIELDS = [

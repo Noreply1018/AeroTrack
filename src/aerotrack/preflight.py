@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import shutil
 import sys
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+from aerotrack.dependencies import missing_smoke_dependencies, smoke_dependency_hint
+from aerotrack.data_prep import carrada_dataset_root
 
 
 @dataclass(frozen=True)
@@ -46,6 +50,7 @@ def run_preflight(config: dict[str, Any]) -> PreflightResult:
     checks: list[PreflightCheck] = []
 
     checks.append(_check_python())
+    checks.append(_check_smoke_dependencies())
     checks.append(_check_experiment_name(config))
     checks.append(_check_output_root(config))
     checks.extend(_check_dataset(config))
@@ -75,6 +80,13 @@ def _check_python() -> PreflightCheck:
         "error",
         f"Python {version.major}.{version.minor} is active; use Python 3.11 via uv for this project",
     )
+
+
+def _check_smoke_dependencies() -> PreflightCheck:
+    missing = missing_smoke_dependencies()
+    if missing:
+        return PreflightCheck("dependencies.smoke", "error", smoke_dependency_hint(missing))
+    return PreflightCheck("dependencies.smoke", "ok", "Stage1 smoke dependencies are importable")
 
 
 def _check_experiment_name(config: dict[str, Any]) -> PreflightCheck:
@@ -120,9 +132,16 @@ def _check_dataset(config: dict[str, Any]) -> list[PreflightCheck]:
 
     root = dataset.get("root", "data/carrada")
     root_path = _repo_path(config, root)
+    carrada_root = carrada_dataset_root(root_path)
     if root_path.exists():
-        if any(root_path.iterdir()):
-            checks.append(PreflightCheck("dataset.root", "ok", f"CARRADA root exists: {root_path}"))
+        required = [carrada_root / "annotations_instance_oriented.json", carrada_root / "data_seq_ref.json"]
+        missing = [path.name for path in required if not path.exists()]
+        if missing:
+            checks.append(PreflightCheck("dataset.files", "gate", f"CARRADA metadata missing under {carrada_root}: {', '.join(missing)}"))
+        elif not _has_range_angle_sequence(carrada_root):
+            checks.append(PreflightCheck("dataset.range_angle", "gate", f"No range_angle_processed .npy files found under {carrada_root}"))
+        elif any(root_path.iterdir()):
+            checks.append(PreflightCheck("dataset.root", "ok", f"CARRADA root exists: {carrada_root}"))
         else:
             checks.append(PreflightCheck("dataset.root", "gate", f"CARRADA root is empty: {root_path}"))
     else:
@@ -135,6 +154,20 @@ def _check_dataset(config: dict[str, Any]) -> list[PreflightCheck]:
         )
 
     return checks
+
+
+def _has_range_angle_sequence(carrada_root: Path) -> bool:
+    ref_path = carrada_root / "data_seq_ref.json"
+    try:
+        seq_ref = json.loads(ref_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    if not isinstance(seq_ref, dict):
+        return False
+    for sequence_id in seq_ref:
+        if any((carrada_root / sequence_id / "range_angle_processed").glob("*.npy")):
+            return True
+    return False
 
 
 def _check_detector(config: dict[str, Any]) -> list[PreflightCheck]:

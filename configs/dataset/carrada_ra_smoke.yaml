@@ -3,20 +3,22 @@ representation: range_angle
 root: data/carrada
 prepared_root: data/processed/carrada_ra_smoke
 splits:
-  strategy: official_or_sequence_level
+  strategy: official
   seed: 42
   max_sequences: 2
+  prefer_train_and_test: true
 normalization:
   method: minmax
   output_dtype: uint8
   channels: 3
 annotations:
-  preferred_source: mask_bbox
-  fallback_source: point_expand
-  point_expand:
-    width: 12
-    height: 12
+  preferred_source: range_angle.box
+  fallback_source: range_angle.dense_bbox
   empty_frames: keep
+raw_label_mapping:
+  "1": 0
+  "2": 1
+  "3": 2
 classes:
   - id: 0
     name: pedestrian
