@@ -7,6 +7,11 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
+try:
+    import numpy as np
+except ImportError:  # pragma: no cover - the PNG fallback keeps the script usable.
+    np = None
+
 
 CANVAS = (1600, 1000)
 BACKGROUND = (255, 255, 255)
@@ -16,6 +21,8 @@ ACCENT = (0, 122, 255)
 GT = (0, 210, 80)
 DET = (238, 184, 0)
 TRACK = (0, 170, 255)
+PANEL_BORDER = (205, 212, 224)
+GRID = (54, 68, 84)
 
 
 def main() -> int:
@@ -45,12 +52,14 @@ def main() -> int:
     cpu10_summary = _read_summary(Path(args.cpu10_summary)) if args.cpu10_summary else None
     sort_sweep = _read_csv(Path(args.sort_sweep_summary)) if args.sort_sweep_summary else []
 
-    _make_large_triptych(prepared_root, output_dir, primary_frame, annotations, detections, tracks)
-    _make_tracking_focus(prepared_root, output_dir, tracking_frames, tracks)
+    source_lookup = _read_source_lookup(prepared_root)
+
+    _make_large_triptych(prepared_root, output_dir, primary_frame, annotations, detections, tracks, source_lookup)
+    _make_tracking_focus(prepared_root, output_dir, tracking_frames, tracks, source_lookup)
     _make_metrics_slide(output_dir, summary)
     _make_failure_slide(output_dir, failures)
-    _make_single_target_slide(prepared_root, output_dir, primary_frame, annotations, detections, tracks)
-    _make_track_strip_slide(prepared_root, output_dir, tracking_frames, tracks)
+    _make_single_target_slide(prepared_root, output_dir, primary_frame, annotations, detections, tracks, source_lookup)
+    _make_track_strip_slide(prepared_root, output_dir, tracking_frames, tracks, source_lookup)
     if sort_sweep:
         _make_sort_sweep_slide(output_dir, sort_sweep)
     if cpu10_summary:
@@ -66,6 +75,7 @@ def _make_large_triptych(
     annotations: list[dict[str, str]],
     detections: list[dict[str, str]],
     tracks: list[dict[str, str]],
+    source_lookup: dict[tuple[str, str], str],
 ) -> None:
     image = Image.new("RGB", CANVAS, BACKGROUND)
     draw = ImageDraw.Draw(image)
@@ -73,33 +83,37 @@ def _make_large_triptych(
     label_font = _font(27)
     body_font = _font(23)
     draw.text((64, 44), "AeroTrack CPU Diagnostic Loop", fill=TEXT, font=title_font)
-    draw.text((64, 108), "Full Range-Angle frame plus zoomed target region. Detector source: gt_bbox, not YOLO.", fill=MUTED, font=body_font)
+    draw.text((64, 108), "High-contrast Range-Angle render with readable target zooms. Detector source: gt_bbox, not YOLO.", fill=MUTED, font=body_font)
 
     panels = [
         ("GT annotation", _rows_for_frame(annotations, frame), GT),
         ("gt_bbox detection", _rows_for_frame(detections, frame), DET),
         ("SORT track output", _rows_for_frame(tracks, frame), TRACK),
     ]
-    source = _source_image(prepared_root, frame)
+    source = _source_image(prepared_root, frame, source_lookup)
     target_box = _primary_box(_rows_for_frame(detections, frame))
     x_positions = [66, 566, 1066]
     for x, (label, rows, color) in zip(x_positions, panels, strict=True):
-        full = source.copy()
-        _draw_boxes(full, rows, color)
-        full = full.resize((300, 300), Image.Resampling.NEAREST)
-        zoom = _crop_zoom(source, target_box, rows, color)
+        full = _render_panel(source, rows, (340, 340), color)
+        zoom = _crop_zoom(source, target_box, rows, color, output_size=(420, 360))
         image.paste(full, (x, 210))
-        image.paste(zoom, (x, 540))
-        draw.rectangle((x, 210, x + 300, 510), outline=(205, 212, 224), width=2)
-        draw.rectangle((x, 540, x + 420, 900), outline=color, width=4)
+        image.paste(zoom, (x, 565))
+        draw.rectangle((x, 210, x + 340, 550), outline=PANEL_BORDER, width=2)
+        draw.rectangle((x, 565, x + 420, 925), outline=color, width=4)
         draw.text((x, 166), label, fill=TEXT, font=label_font)
-        draw.text((x, 914), _panel_detail(label, rows), fill=MUTED, font=_font(18))
+        draw.text((x, 934), _panel_detail(label, rows), fill=MUTED, font=_font(18))
 
-    draw.text((64, 950), "Use this slide to explain the data -> diagnostic detection -> tracking handoff. Boxes are enlarged for readability.", fill=MUTED, font=_font(20))
+    draw.text((64, 950), "Use this slide to explain the data -> diagnostic detection -> tracking handoff. Zooms are rendered from the source frame.", fill=MUTED, font=_font(20))
     image.save(output_dir / "slide_01_large_triptych.png")
 
 
-def _make_tracking_focus(prepared_root: Path, output_dir: Path, frames: list[dict[str, str]], tracks: list[dict[str, str]]) -> None:
+def _make_tracking_focus(
+    prepared_root: Path,
+    output_dir: Path,
+    frames: list[dict[str, str]],
+    tracks: list[dict[str, str]],
+    source_lookup: dict[tuple[str, str], str],
+) -> None:
     image = Image.new("RGB", CANVAS, BACKGROUND)
     draw = ImageDraw.Draw(image)
     title_font = _font(46)
@@ -109,11 +123,11 @@ def _make_tracking_focus(prepared_root: Path, output_dir: Path, frames: list[dic
     draw.text((64, 108), "Zoomed target views make the track boxes and IDs readable in presentation.", fill=MUTED, font=body_font)
     x_positions = [70, 450, 830, 1210]
     for x, frame in zip(x_positions, frames, strict=False):
-        source = _source_image(prepared_root, frame)
+        source = _source_image(prepared_root, frame, source_lookup)
         rows = _rows_for_frame(tracks, frame)
         box = _primary_box(rows)
-        zoom = _crop_zoom(source, box, rows, TRACK)
-        image.paste(zoom.resize((300, 300), Image.Resampling.NEAREST), (x, 245))
+        zoom = _crop_zoom(source, box, rows, TRACK, output_size=(300, 300))
+        image.paste(zoom, (x, 245))
         draw.rectangle((x, 245, x + 300, 545), outline=TRACK, width=3)
         draw.text((x, 575), f"Frame {frame['frame_id']}", fill=TEXT, font=label_font)
         draw.text((x, 605), _panel_detail("SORT track output", rows), fill=MUTED, font=_font(18))
@@ -178,38 +192,65 @@ def _make_single_target_slide(
     annotations: list[dict[str, str]],
     detections: list[dict[str, str]],
     tracks: list[dict[str, str]],
+    source_lookup: dict[tuple[str, str], str],
 ) -> None:
     image = Image.new("RGB", CANVAS, BACKGROUND)
     draw = ImageDraw.Draw(image)
     draw.text((64, 44), "Single Target Detail", fill=TEXT, font=_font(46))
-    draw.text((64, 108), "A presentation-friendly view of one CARRADA Range-Angle frame and its diagnostic boxes.", fill=MUTED, font=_font(23))
-    source = _source_image(prepared_root, frame)
+    draw.text((64, 108), "A readable target inspection view: full RA context, magnified RA target, and camera reference.", fill=MUTED, font=_font(23))
+    source = _source_image(prepared_root, frame, source_lookup)
     rows = [
         ("GT", _rows_for_frame(annotations, frame), GT),
         ("Detection", _rows_for_frame(detections, frame), DET),
         ("Track", _rows_for_frame(tracks, frame), TRACK),
     ]
     target_box = _primary_box(rows[1][1])
-    full = source.copy()
-    for _, layer_rows, color in rows:
-        _draw_boxes(full, layer_rows, color)
-    image.paste(full.resize((520, 520), Image.Resampling.NEAREST), (90, 220))
-    draw.rectangle((90, 220, 610, 740), outline=(205, 212, 224), width=2)
-    zoom = _crop_zoom(source, target_box, [row for _, layer_rows, _ in rows for row in layer_rows], ACCENT)
-    image.paste(zoom.resize((560, 480), Image.Resampling.NEAREST), (760, 210))
-    draw.rectangle((760, 210, 1320, 690), outline=ACCENT, width=4)
-    legend_y = 725
+    full = _render_panel(source, [], (430, 430), ACCENT)
+    display_layers = [
+        (_rows_for_frame(tracks, frame), TRACK, 6),
+        (_rows_for_frame(detections, frame), DET, 2),
+        (_rows_for_frame(annotations, frame), GT, -2),
+    ]
+    for layer_rows, color, expand in display_layers:
+        scaled = [_expanded_row(_scaled_row(row, 430 / source.width, 430 / source.height), expand) for row in layer_rows]
+        _draw_boxes(full, scaled, color, width=4)
+    image.paste(full, (80, 220))
+    draw.rectangle((80, 220, 510, 650), outline=PANEL_BORDER, width=2)
+    zoom = _crop_zoom_layers(source, target_box, display_layers, output_size=(560, 430))
+    image.paste(zoom, (560, 220))
+    draw.rectangle((560, 220, 1120, 650), outline=ACCENT, width=4)
+    camera = _camera_image(prepared_root, frame)
+    if camera:
+        camera = ImageOps.contain(camera.convert("RGB"), (360, 270), Image.Resampling.LANCZOS)
+        camera_panel = Image.new("RGB", (360, 270), (245, 247, 250))
+        camera_panel.paste(camera, ((360 - camera.width) // 2, (270 - camera.height) // 2))
+        image.paste(camera_panel, (1180, 220))
+        draw.rectangle((1180, 220, 1540, 490), outline=PANEL_BORDER, width=2)
+        draw.text((1180, 508), "Camera reference", fill=MUTED, font=_font(19))
+    else:
+        draw.rectangle((1180, 220, 1540, 490), outline=PANEL_BORDER, width=2)
+        draw.text((1215, 340), "Camera reference unavailable", fill=MUTED, font=_font(19))
+
+    draw.text((80, 675), "Full RA frame", fill=TEXT, font=_font(23))
+    draw.text((560, 675), "Magnified target region", fill=TEXT, font=_font(23))
+    legend_y = 720
     for label, _, color in rows:
-        draw.rectangle((760, legend_y, 790, legend_y + 20), fill=color)
-        draw.text((805, legend_y - 4), label, fill=TEXT, font=_font(23))
+        draw.rectangle((560, legend_y, 590, legend_y + 20), fill=color)
+        draw.text((605, legend_y - 4), label, fill=TEXT, font=_font(23))
         legend_y += 45
-    draw.text((90, 775), f"Frame {frame['sequence_id']} / {frame['frame_id']}", fill=TEXT, font=_font(24))
-    draw.text((90, 830), "Color map is applied only for presentation.", fill=MUTED, font=_font(21))
-    draw.text((90, 862), "Source remains the CARRADA Range-Angle prepared PNG.", fill=MUTED, font=_font(21))
+    draw.text((80, 790), f"Frame {frame['sequence_id']} / {frame['frame_id']}", fill=TEXT, font=_font(24))
+    draw.text((80, 842), "RA color map is clipped and contrast-enhanced for presentation only.", fill=MUTED, font=_font(21))
+    draw.text((80, 874), "Detection and tracking boxes still use the original CARRADA Range-Angle coordinates.", fill=MUTED, font=_font(21))
     image.save(output_dir / "slide_05_single_target_detail.png")
 
 
-def _make_track_strip_slide(prepared_root: Path, output_dir: Path, frames: list[dict[str, str]], tracks: list[dict[str, str]]) -> None:
+def _make_track_strip_slide(
+    prepared_root: Path,
+    output_dir: Path,
+    frames: list[dict[str, str]],
+    tracks: list[dict[str, str]],
+    source_lookup: dict[tuple[str, str], str],
+) -> None:
     image = Image.new("RGB", CANVAS, BACKGROUND)
     draw = ImageDraw.Draw(image)
     draw.text((64, 44), "Track Strip: Same ID Over Time", fill=TEXT, font=_font(46))
@@ -217,9 +258,9 @@ def _make_track_strip_slide(prepared_root: Path, output_dir: Path, frames: list[
     extended = _extend_track_window(tracks, frames, limit=6)
     x = 70
     for frame in extended:
-        source = _source_image(prepared_root, frame)
+        source = _source_image(prepared_root, frame, source_lookup)
         rows = _rows_for_frame(tracks, frame)
-        zoom = _crop_zoom(source, _primary_box(rows), rows, TRACK).resize((220, 260), Image.Resampling.NEAREST)
+        zoom = _crop_zoom(source, _primary_box(rows), rows, TRACK, output_size=(220, 260))
         image.paste(zoom, (x, 260))
         draw.rectangle((x, 260, x + 220, 520), outline=TRACK, width=3)
         draw.text((x, 545), frame["frame_id"], fill=TEXT, font=_font(21))
@@ -272,11 +313,34 @@ def _make_scale_comparison_slide(output_dir: Path, smoke: dict[str, str], cpu10:
     image.save(output_dir / "slide_08_scale_comparison.png")
 
 
-def _draw_boxes(image: Image.Image, rows: list[dict[str, str]], color: tuple[int, int, int]) -> None:
+def _draw_boxes(image: Image.Image, rows: list[dict[str, str]], color: tuple[int, int, int], *, width: int = 2) -> None:
     draw = ImageDraw.Draw(image)
     for row in rows:
         box = _box(row)
-        draw.rectangle(box, outline=color, width=2)
+        draw.rectangle(box, outline=color, width=width)
+
+
+def _draw_grid(image: Image.Image) -> None:
+    draw = ImageDraw.Draw(image, "RGBA")
+    width, height = image.size
+    for x in range(width // 4, width, width // 4):
+        draw.line((x, 0, x, height), fill=(*GRID, 60), width=1)
+    for y in range(height // 4, height, height // 4):
+        draw.line((0, y, width, y), fill=(*GRID, 60), width=1)
+
+
+def _render_panel(
+    source: Image.Image,
+    rows: list[dict[str, str]],
+    size: tuple[int, int],
+    color: tuple[int, int, int],
+) -> Image.Image:
+    original_w, original_h = source.size
+    panel = source.resize(size, Image.Resampling.BICUBIC)
+    _draw_grid(panel)
+    scaled_rows = [_scaled_row(row, size[0] / original_w, size[1] / original_h) for row in rows]
+    _draw_boxes(panel, scaled_rows, color, width=4)
+    return panel
 
 
 def _crop_zoom(
@@ -284,6 +348,8 @@ def _crop_zoom(
     focus_box: tuple[float, float, float, float],
     rows: list[dict[str, str]],
     color: tuple[int, int, int],
+    *,
+    output_size: tuple[int, int] = (420, 360),
 ) -> Image.Image:
     x1, y1, x2, y2 = focus_box
     width, height = source.size
@@ -301,8 +367,52 @@ def _crop_zoom(
         bx1, by1, bx2, by2 = _box(row)
         r.update({"x1": str(bx1 - crop[0]), "y1": str(by1 - crop[1]), "x2": str(bx2 - crop[0]), "y2": str(by2 - crop[1])})
         shifted.append(r)
-    _draw_boxes(region, shifted, color)
-    return region.resize((420, 360), Image.Resampling.NEAREST)
+    zoom = region.resize(output_size, Image.Resampling.BICUBIC)
+    _draw_grid(zoom)
+    scale_x = output_size[0] / max(1, region.width)
+    scale_y = output_size[1] / max(1, region.height)
+    _draw_boxes(zoom, [_scaled_row(row, scale_x, scale_y) for row in shifted], color, width=5)
+    return zoom
+
+
+def _crop_zoom_layers(
+    source: Image.Image,
+    focus_box: tuple[float, float, float, float],
+    layers: list[tuple[list[dict[str, str]], tuple[int, int, int], int]],
+    *,
+    output_size: tuple[int, int],
+) -> Image.Image:
+    x1, y1, x2, y2 = focus_box
+    width, height = source.size
+    pad = 34
+    crop = (
+        max(0, int(x1) - pad),
+        max(0, int(y1) - pad),
+        min(width, int(x2) + pad),
+        min(height, int(y2) + pad),
+    )
+    region = source.crop(crop)
+    zoom = region.resize(output_size, Image.Resampling.BICUBIC)
+    _draw_grid(zoom)
+    scale_x = output_size[0] / max(1, region.width)
+    scale_y = output_size[1] / max(1, region.height)
+    for rows, color, expand in layers:
+        shifted = []
+        for row in rows:
+            r = dict(row)
+            bx1, by1, bx2, by2 = _box(row)
+            r.update(
+                {
+                    "x1": str(bx1 - crop[0]),
+                    "y1": str(by1 - crop[1]),
+                    "x2": str(bx2 - crop[0]),
+                    "y2": str(by2 - crop[1]),
+                }
+            )
+            shifted.append(r)
+        display_rows = [_expanded_row(_scaled_row(row, scale_x, scale_y), expand) for row in shifted]
+        _draw_boxes(zoom, display_rows, color, width=5)
+    return zoom
 
 
 def _draw_table(
@@ -448,14 +558,77 @@ def _panel_detail(label: str, rows: list[dict[str, str]]) -> str:
     return class_name
 
 
-def _source_image(prepared_root: Path, frame: dict[str, str]) -> Image.Image:
+def _read_source_lookup(prepared_root: Path) -> dict[tuple[str, str], str]:
+    records_path = prepared_root / "conversion_records.csv"
+    if not records_path.exists():
+        return {}
+    lookup: dict[tuple[str, str], str] = {}
+    for row in _read_csv(records_path):
+        lookup[(row["sequence_id"], row["frame_id"])] = row.get("image_source", "")
+    return lookup
+
+
+def _source_image(prepared_root: Path, frame: dict[str, str], source_lookup: dict[tuple[str, str], str]) -> Image.Image:
+    npy_path = _npy_source_path(prepared_root, frame, source_lookup)
+    if npy_path is not None and np is not None:
+        return _colorize_ra_array(np.load(npy_path))
     gray = Image.open(prepared_root / "images" / frame["sequence_id"] / f"{frame['frame_id']}.png").convert("L")
     return _colorize_ra(gray)
 
 
+def _npy_source_path(prepared_root: Path, frame: dict[str, str], source_lookup: dict[tuple[str, str], str]) -> Path | None:
+    rel = source_lookup.get((frame["sequence_id"], frame["frame_id"]))
+    candidates: list[Path] = []
+    if rel:
+        candidates.append(prepared_root.parents[1] / "carrada" / "Carrada" / rel)
+    candidates.extend(
+        [
+            prepared_root.parents[1]
+            / "carrada"
+            / "Carrada"
+            / frame["sequence_id"]
+            / folder
+            / f"{frame['frame_id']}.npy"
+            for folder in ("range_angle_processed", "range_angle_numpy", "range_angle_raw")
+        ]
+    )
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def _camera_image(prepared_root: Path, frame: dict[str, str]) -> Image.Image | None:
+    camera_path = (
+        prepared_root.parents[1]
+        / "carrada"
+        / "Carrada"
+        / frame["sequence_id"]
+        / "camera_images"
+        / f"{frame['frame_id']}.jpg"
+    )
+    if not camera_path.exists():
+        return None
+    return Image.open(camera_path)
+
+
 def _colorize_ra(gray: Image.Image) -> Image.Image:
-    enhanced = ImageOps.autocontrast(gray)
+    enhanced = ImageOps.autocontrast(gray, cutoff=1)
     return ImageOps.colorize(enhanced, black="#101820", mid="#2364aa", white="#fff2a8")
+
+
+def _colorize_ra_array(array: "np.ndarray") -> Image.Image:
+    values = np.asarray(array, dtype=np.float32)
+    values = values[np.isfinite(values)] if np.isfinite(values).any() else values
+    if values.size == 0:
+        return Image.new("RGB", (256, 256), "#101820")
+    low, high = np.percentile(values, [2.0, 99.5])
+    if high <= low:
+        low, high = float(values.min()), float(values.max())
+    scaled = np.clip((np.asarray(array, dtype=np.float32) - low) / max(high - low, 1e-6), 0.0, 1.0)
+    scaled = np.sqrt(scaled)
+    gray = Image.fromarray((scaled * 255.0).astype("uint8"), mode="L")
+    return ImageOps.colorize(gray, black="#101820", mid="#1f7a8c", white="#fff4b8")
 
 
 def _rows_for_frame(rows: list[dict[str, str]], frame: dict[str, str]) -> list[dict[str, str]]:
@@ -470,6 +643,34 @@ def _primary_box(rows: list[dict[str, str]]) -> tuple[float, float, float, float
 
 def _box(row: dict[str, str]) -> tuple[float, float, float, float]:
     return tuple(float(row[key]) for key in ("x1", "y1", "x2", "y2"))  # type: ignore[return-value]
+
+
+def _scaled_row(row: dict[str, str], scale_x: float, scale_y: float) -> dict[str, str]:
+    scaled = dict(row)
+    x1, y1, x2, y2 = _box(row)
+    scaled.update(
+        {
+            "x1": str(x1 * scale_x),
+            "y1": str(y1 * scale_y),
+            "x2": str(x2 * scale_x),
+            "y2": str(y2 * scale_y),
+        }
+    )
+    return scaled
+
+
+def _expanded_row(row: dict[str, str], pixels: float) -> dict[str, str]:
+    expanded = dict(row)
+    x1, y1, x2, y2 = _box(row)
+    expanded.update(
+        {
+            "x1": str(x1 - pixels),
+            "y1": str(y1 - pixels),
+            "x2": str(x2 + pixels),
+            "y2": str(y2 + pixels),
+        }
+    )
+    return expanded
 
 
 def _area(row: dict[str, str]) -> float:

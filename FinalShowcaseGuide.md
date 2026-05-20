@@ -64,7 +64,7 @@
 
 ![AeroTrack 单目标细节图](runs/carrada_ra_gtbbox_sort_smoke/showcase/slides/slide_05_single_target_detail.png)
 
-这张图用于单独解释一个目标在 Range-Angle 图中的位置。左侧保留全局雷达图，右侧给出目标区域放大图，并用颜色区分 GT、诊断检测和 SORT track。这里的伪彩色只用于展示，底层数据仍来自 CARRADA Range-Angle prepared PNG。
+这张图用于单独解释一个目标在 Range-Angle 图中的位置。左侧保留全局雷达图，中间给出目标区域放大图，右侧补充同帧相机参考图，并用颜色区分 GT、诊断检测和 SORT track。这里的伪彩色和对比度裁剪只用于展示；坐标仍来自 CARRADA Range-Angle 标注，展示渲染优先读取原始 Range-Angle `.npy`，找不到时才回退到 prepared PNG。
 
 ### 连续轨迹条带图
 
