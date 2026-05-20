@@ -57,3 +57,114 @@ AeroTrack 在设计上不只关注指标数值，也强调可视化、轨迹回�
 ## 一句话概括
 
 AeroTrack 的核心不是“用了 YOLO”，而是构建一套基于雷达 Range-Angle 表示的 YOLO 目标检测与多目标跟踪实验基线，用于研究通用视觉检测方法如何迁移到雷达感知场景，并评估检测结果对后续目标跟踪的影响。
+
+## 结项答辩产出
+
+围绕上述项目定位和技术贡献，结项答辩应准备的产出重点不是证明“调用了 YOLO”，而是证明项目完成了雷达 Range-Angle 表示上的检测、跟踪、评估和复现实验链路。
+
+### 1. 项目定位与技术路线图
+
+用于说明项目整体做什么，以及 YOLO 在其中承担什么角色。
+
+建议产出：
+
+1. 一张完整技术路线图：
+
+   ```text
+   CARRADA 雷达 Range-Angle 数据
+   -> RA 图像与标签转换
+   -> YOLO 目标检测
+   -> SORT 多目标跟踪
+   -> 检测与跟踪指标评估
+   -> 可视化、失败样例与实验归档
+   ```
+
+2. 一页项目定位说明，明确本项目是雷达目标检测-跟踪实验基线，不是普通 YOLO 图像检测项目。
+3. 一页技术贡献边界说明，明确项目不重新发明 YOLO、SORT 或 ByteTrack，而是做雷达表示适配、检测-跟踪衔接和可复现实验基线。
+
+### 2. 雷达数据转换产物
+
+用于证明项目完成了从 CARRADA 雷达数据到检测模型输入的适配。
+
+建议产出：
+
+1. 原始 CARRADA Range-Angle 数据样例。
+2. 转换后的 Range-Angle PNG 图像样例。
+3. YOLO label 文件样例。
+4. `sample_index.csv`、`annotations.csv`、`classes.yaml` 和数据划分文件。
+5. GT 标注框叠加到 RA 图上的可视化样例。
+6. 数据转换规则说明，包括归一化方式、类别映射、坐标体系和标注框来源。
+
+### 3. YOLO 雷达检测产物
+
+用于证明通用视觉检测器已经被迁移到雷达 Range-Angle 表示上。
+
+正式 YOLO baseline 完成后，建议产出：
+
+1. YOLO 在 RA 图上的检测可视化结果。
+2. 统一格式的 `detections.csv`。
+3. `precision`、`recall`、`F1`、`mAP50` 等检测指标。
+4. 不同 YOLO 权重、模型规模、置信度阈值或 NMS 参数的对比表。
+5. 检测成功样例和失败样例，包括漏检、虚警、目标框偏移等。
+
+若当前只完成 `gt_bbox` 诊断闭环，答辩中应明确说明该产物用于验证后续跟踪、评估和可视化链路，不能把它包装成正式 YOLO 检测 baseline。
+
+### 4. 检测到跟踪的产物
+
+用于证明项目不止做单帧检测，还能把连续帧目标关联成轨迹。
+
+建议产出：
+
+1. SORT 跟踪后的 `tracks.csv`。
+2. 带 `track_id` 的跟踪可视化图。
+3. 同一目标跨帧保持 ID 的序列示例。
+4. MOTA 等跟踪指标。
+5. 跟踪成功样例和失败样例，包括跟踪中断、ID 不稳定、目标靠近导致的关联错误等。
+6. SORT 参数对跟踪结果的影响对比，例如 `iou_threshold`、`max_age`、`min_hits`。
+
+ByteTrack 若尚未接入，应作为后续扩展或预留接口说明；只有完成接入后，才适合作为 SORT / ByteTrack 对比产出。
+
+### 5. 实验对比与消融产物
+
+用于证明项目具备实验基线价值，而不是一次性脚本。
+
+建议产出：
+
+1. 至少一组固定数据 split、固定类别映射、固定评估阈值下的 baseline 指标。
+2. YOLO 不同权重或不同模型规模的检测结果对比。
+3. 不同置信度阈值和 NMS 设置的检测结果对比。
+4. SORT 不同参数下的跟踪指标对比。
+5. 在 ByteTrack 接入后，补充 SORT / ByteTrack 横向对比。
+6. 汇总表格，记录实验名、检测来源、跟踪器、关键参数、检测指标、跟踪指标和备注。
+
+### 6. 可视化与失败分析产物
+
+用于说明项目结果可以被人工复核，而不是只输出指标数字。
+
+建议产出：
+
+1. GT 标注可视化图。
+2. YOLO 检测结果可视化图。
+3. SORT 跟踪结果可视化图。
+4. 轨迹回放帧序列或视频。
+5. 失败样例清单，例如 `failure_examples.json`。
+6. 对典型失败原因的分析，包括雷达噪声、弱反射目标、目标靠近、目标框抖动、漏检导致的轨迹中断等。
+
+### 7. 可复现实验归档
+
+用于证明项目可以被复跑、审计和横向比较。
+
+建议产出：
+
+1. 实验配置文件，例如 `configs/experiment/*.yaml`。
+2. 每次实验归档目录，例如 `runs/<experiment_name>/`。
+3. 归档后的最终配置副本 `config.yaml`。
+4. `detections/`、`tracks/`、`metrics/`、`visualizations/` 和 `logs/` 目录。
+5. 指标文件，例如 `detection_metrics.json`、`tracking_metrics.json` 和 `summary.csv`。
+6. 一条可复现实验命令。正式 YOLO baseline 完成后的示例命令：
+
+   ```bash
+   uv run aerotrack run-experiment --config configs/experiment/carrada_ra_yolo_sort_baseline.yaml
+   ```
+
+7. 环境说明，包括 Python 版本、依赖锁文件、YOLO 权重来源，以及如使用 GPU 时的 PyTorch / CUDA 版本。
