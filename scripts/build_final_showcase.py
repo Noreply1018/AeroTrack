@@ -8,6 +8,8 @@ import shutil
 from typing import NamedTuple
 from pathlib import Path
 
+from PIL import Image, ImageDraw, ImageFont, ImageOps
+
 
 FINAL_DIRS = [
     "figures/data_conversion",
@@ -52,6 +54,14 @@ SHOWCASE_SLIDES = [
     "slide_07_sort_sweep.png",
     "slide_08_scale_comparison.png",
 ]
+
+
+TEXT = (24, 28, 34)
+MUTED = (84, 91, 105)
+PANEL_BORDER = (205, 212, 224)
+GT_COLOR = (0, 210, 80)
+TRACK_COLOR = (0, 170, 255)
+YOLO_COLOR = (255, 196, 0)
 
 
 class CopiedArtifact(NamedTuple):
@@ -152,7 +162,16 @@ def _copy_data_conversion(cpu10_data_dir: Path, output_dir: Path) -> list[Copied
     visual_dir = cpu10_data_dir / "visual_checks" / "gt"
     for index, source in enumerate(sorted(visual_dir.glob("*.png"))[:8], start=1):
         target = output_dir / "figures" / "data_conversion" / f"gt_visual_check_{index:02d}_{source.name}"
-        artifacts.append(_copy_file("data_conversion", "GT 可视化抽查", source, target))
+        target.parent.mkdir(parents=True, exist_ok=True)
+        _render_showcase_panel(
+            source,
+            target,
+            title=f"GT visual check {index:02d}",
+            subtitle="Range-Angle ground-truth overlay",
+            accent=GT_COLOR,
+            mode="full",
+        )
+        artifacts.append(CopiedArtifact("data_conversion", "GT 可视化抽查展示版", source, target, "rendered"))
     for name in ["sample_index.csv", "annotations.csv", "conversion_records.csv", "classes.yaml"]:
         source = cpu10_data_dir / name
         target = output_dir / "tables" / f"cpu10_{name}"
@@ -175,7 +194,16 @@ def _copy_diagnostic_materials(
 
     for index, source in enumerate(sorted((cpu10_run_dir / "visualizations" / "tracks").glob("*.png"))[:12], start=1):
         target = output_dir / "figures" / "tracking" / f"cpu10_track_{index:02d}_{source.name}"
-        artifacts.append(_copy_file("tracking", "CPU10 SORT 跟踪图", source, target))
+        target.parent.mkdir(parents=True, exist_ok=True)
+        _render_showcase_panel(
+            source,
+            target,
+            title=f"SORT track {index:02d}",
+            subtitle="Range-Angle tracking overlay",
+            accent=TRACK_COLOR,
+            mode="full",
+        )
+        artifacts.append(CopiedArtifact("tracking", "CPU10 SORT 跟踪展示版", source, target, "rendered"))
 
     summary_sources = {
         "smoke_summary.csv": smoke_run_dir / "metrics" / "summary.csv",
@@ -200,11 +228,22 @@ def _copy_yolo_materials(yolo_run_dir: Path, yolo_pred_dir: Path, output_dir: Pa
         source = yolo_run_dir / name
         artifacts.append(_copy_file("yolo_training", name, source, output_dir / "tables" / f"yolo_{name}"))
 
-    prediction_images = sorted(yolo_pred_dir.glob("*.jpg"))
+    prediction_images = _select_yolo_prediction_images(yolo_pred_dir, limit=12)
     _require_non_empty("yolo predictions", prediction_images, yolo_pred_dir)
     for index, source in enumerate(prediction_images, start=1):
         target = output_dir / "figures" / "yolo_predictions" / f"prediction_{index:02d}_{source.name}"
-        artifacts.append(_copy_file("yolo_predictions", "YOLO 预测示例", source, target))
+        target.parent.mkdir(parents=True, exist_ok=True)
+        label_path = yolo_pred_dir / "labels" / f"{source.stem}.txt"
+        _render_yolo_prediction_panel(
+            source,
+            target,
+            label_path=label_path if label_path.exists() else None,
+            title=f"YOLO prediction {index:02d}",
+        )
+        artifacts.append(CopiedArtifact("yolo_predictions", "YOLO 预测展示版", source, target, "rendered"))
+    overview_target = output_dir / "figures" / "yolo_predictions" / "overview.png"
+    _write_yolo_overview(overview_target, prediction_images, yolo_pred_dir)
+    artifacts.append(CopiedArtifact("yolo_predictions", "YOLO 预测总览", yolo_pred_dir, overview_target, "rendered"))
     return artifacts
 
 
@@ -244,6 +283,274 @@ def _replace_directory(target_dir: Path, source_dir: Path) -> None:
     if target_dir.exists():
         shutil.rmtree(target_dir)
     os.replace(source_dir, target_dir)
+
+
+def _render_showcase_panel(
+    source: Path,
+    target: Path,
+    *,
+    title: str,
+    subtitle: str,
+    accent: tuple[int, int, int],
+    mode: str,
+) -> None:
+    image = Image.open(source).convert("RGB")
+    panel = Image.new("RGB", (1600, 900), "white")
+    draw = ImageDraw.Draw(panel)
+    draw.text((64, 44), title, fill=TEXT, font=_font(44))
+    draw.text((64, 108), subtitle, fill=MUTED, font=_font(24))
+
+    if mode == "full":
+        left = (70, 190, 610, 730)
+        panel.paste(_annotated_source(image, accent), (left[0], left[1]))
+        draw.rectangle(left, outline=PANEL_BORDER, width=2)
+        zoom_box = _best_focus_box(image)
+        zoom = _zoom_crop(image, zoom_box, accent, (620, 190, 1280, 730))
+        panel.paste(zoom, (620, 190))
+        draw.rectangle((620, 190, 1280, 730), outline=accent, width=4)
+        detail = _box_summary(zoom_box)
+        draw.text((70, 770), detail, fill=TEXT, font=_font(24))
+        draw.text((620, 770), "Zoomed target region", fill=TEXT, font=_font(24))
+    else:
+        raise ValueError(f"Unsupported mode: {mode}")
+
+    draw.text((70, 820), source.name, fill=MUTED, font=_font(19))
+    target.parent.mkdir(parents=True, exist_ok=True)
+    panel.save(target)
+
+
+def _render_yolo_prediction_panel(source: Path, target: Path, *, label_path: Path | None, title: str) -> None:
+    image = Image.open(source).convert("RGB")
+    panel = Image.new("RGB", (1600, 900), "white")
+    draw = ImageDraw.Draw(panel)
+    draw.text((64, 44), title, fill=TEXT, font=_font(44))
+    draw.text((64, 108), "YOLO prediction with drawn boxes and a readable zoomed crop.", fill=MUTED, font=_font(24))
+
+    boxes = _read_yolo_boxes(label_path, image.size) if label_path else []
+    annotated = image.copy()
+    _draw_boxes(annotated, boxes, YOLO_COLOR, width=3)
+
+    left_image = ImageOps.contain(annotated, (540, 540), Image.Resampling.LANCZOS)
+    _draw_grid(left_image)
+    left = (70, 190, 610, 730)
+    panel.paste(left_image, (left[0], left[1]))
+    draw.rectangle(left, outline=PANEL_BORDER, width=2)
+    zoom_box = _best_focus_box_from_boxes(boxes, image.size)
+    zoom = _zoom_crop(image, zoom_box, YOLO_COLOR, (620, 190, 1280, 730), boxes=boxes)
+    panel.paste(zoom, (620, 190))
+    draw.rectangle((620, 190, 1280, 730), outline=YOLO_COLOR, width=4)
+    draw.text((70, 770), _box_summary(zoom_box, boxes=boxes), fill=TEXT, font=_font(24))
+    draw.text((620, 770), "The zoomed crop makes the boxes readable.", fill=TEXT, font=_font(24))
+    draw.text((70, 820), source.name, fill=MUTED, font=_font(19))
+    target.parent.mkdir(parents=True, exist_ok=True)
+    panel.save(target)
+
+
+def _fit_box(image: Image.Image, box: tuple[int, int, int, int]) -> tuple[int, int, int, int]:
+    x1, y1, x2, y2 = box
+    fitted = ImageOps.contain(image, (x2 - x1, y2 - y1), Image.Resampling.LANCZOS)
+    return x1 + ((x2 - x1) - fitted.width) // 2, y1 + ((y2 - y1) - fitted.height) // 2, x1 + ((x2 - x1) - fitted.width) // 2 + fitted.width, y1 + ((y2 - y1) - fitted.height) // 2 + fitted.height
+
+
+def _annotated_source(image: Image.Image, accent: tuple[int, int, int]) -> Image.Image:
+    canvas = Image.new("RGB", (540, 540), "white")
+    fitted = ImageOps.contain(image, (540, 540), Image.Resampling.LANCZOS)
+    canvas.paste(fitted, ((540 - fitted.width) // 2, (540 - fitted.height) // 2))
+    _draw_grid(canvas)
+    return canvas
+
+
+def _zoom_crop(
+    image: Image.Image,
+    box: tuple[float, float, float, float],
+    accent: tuple[int, int, int],
+    frame: tuple[int, int, int, int],
+    *,
+    boxes: list[tuple[float, float, float, float]] | None = None,
+) -> Image.Image:
+    x1, y1, x2, y2 = box
+    pad = 28
+    left = max(0, int(x1) - pad)
+    top = max(0, int(y1) - pad)
+    right = min(image.width, int(x2) + pad)
+    bottom = min(image.height, int(y2) + pad)
+    crop = image.crop((left, top, right, bottom))
+    zoom = crop.resize((frame[2] - frame[0], frame[3] - frame[1]), Image.Resampling.BICUBIC)
+    _draw_grid(zoom)
+    if boxes:
+        scale_x = zoom.width / max(1, crop.width)
+        scale_y = zoom.height / max(1, crop.height)
+        draw = ImageDraw.Draw(zoom)
+        for bx1, by1, bx2, by2 in boxes:
+            draw.rectangle(
+                (
+                    (bx1 - left) * scale_x,
+                    (by1 - top) * scale_y,
+                    (bx2 - left) * scale_x,
+                    (by2 - top) * scale_y,
+                ),
+                outline=accent,
+                width=4,
+            )
+    return zoom
+
+
+def _draw_boxes(image: Image.Image, boxes: list[tuple[float, float, float, float]], color: tuple[int, int, int], *, width: int = 2) -> None:
+    draw = ImageDraw.Draw(image)
+    for box in boxes:
+        draw.rectangle(box, outline=color, width=width)
+
+
+def _read_yolo_boxes(label_path: Path | None, size: tuple[int, int]) -> list[tuple[float, float, float, float]]:
+    if label_path is None or not label_path.exists():
+        return []
+    width, height = size
+    boxes = []
+    for line in label_path.read_text(encoding="utf-8").splitlines():
+        parts = line.split()
+        if len(parts) < 5:
+            continue
+        _, xc, yc, bw, bh = map(float, parts[:5])
+        x1 = (xc - bw / 2.0) * width
+        y1 = (yc - bh / 2.0) * height
+        x2 = (xc + bw / 2.0) * width
+        y2 = (yc + bh / 2.0) * height
+        boxes.append((x1, y1, x2, y2))
+    return boxes
+
+
+def _select_yolo_prediction_images(yolo_pred_dir: Path, *, limit: int) -> list[Path]:
+    sources = sorted(yolo_pred_dir.glob("*.jpg"))
+    labeled: list[tuple[float, Path]] = []
+    unlabeled: list[Path] = []
+    for source in sources:
+        label_path = yolo_pred_dir / "labels" / f"{source.stem}.txt"
+        if not label_path.exists():
+            unlabeled.append(source)
+            continue
+        rows = _read_yolo_label_rows(label_path)
+        if not rows:
+            unlabeled.append(source)
+            continue
+        box_count = len(rows)
+        max_score = max((row[5] for row in rows if len(row) >= 6), default=0.0)
+        max_area = max((row[3] * row[4] for row in rows), default=0.0)
+        score = box_count + max_score * 10.0 + max_area * 100.0
+        labeled.append((score, source))
+    if labeled:
+        selected = [source for _, source in sorted(labeled, key=lambda item: (-item[0], item[1].name))[:limit]]
+    else:
+        selected = unlabeled[:limit] or sources[:limit]
+    return selected
+
+
+def _read_yolo_label_rows(label_path: Path) -> list[list[float]]:
+    rows: list[list[float]] = []
+    for line in label_path.read_text(encoding="utf-8").splitlines():
+        parts = line.split()
+        if len(parts) < 5:
+            continue
+        try:
+            rows.append([float(value) for value in parts])
+        except ValueError:
+            continue
+    return rows
+
+
+def _best_focus_box(image: Image.Image) -> tuple[float, float, float, float]:
+    px = image.load()
+    colored_points: list[tuple[int, int]] = []
+    for y in range(image.height):
+        for x in range(image.width):
+            r, g, b = px[x, y]
+            if max(r, g, b) > 110 and max(r, g, b) - min(r, g, b) > 70:
+                colored_points.append((x, y))
+    if colored_points:
+        xs = [point[0] for point in colored_points]
+        ys = [point[1] for point in colored_points]
+        return (float(min(xs)), float(min(ys)), float(max(xs) + 1), float(max(ys) + 1))
+
+    best_score = -1
+    best = None
+    step = max(1, image.width // 64)
+    for y in range(0, image.height, step):
+        for x in range(0, image.width, step):
+            score = sum(px[x, y])
+            if score > best_score:
+                best_score = score
+                best = (x, y, min(image.width, x + 1), min(image.height, y + 1))
+    return best if best is not None else (96.0, 96.0, 160.0, 160.0)
+
+
+def _best_focus_box_from_boxes(boxes: list[tuple[float, float, float, float]], size: tuple[int, int]) -> tuple[float, float, float, float]:
+    if boxes:
+        return max(boxes, key=lambda b: max(0.0, b[2] - b[0]) * max(0.0, b[3] - b[1]))
+    return (size[0] * 0.35, size[1] * 0.40, size[0] * 0.65, size[1] * 0.60)
+
+
+def _box_summary(box: tuple[float, float, float, float], *, boxes: list[tuple[float, float, float, float]] | None = None) -> str:
+    x1, y1, x2, y2 = box
+    if boxes is not None:
+        return f"{len(boxes)} boxes, focus area about {int(x2 - x1)}x{int(y2 - y1)} px"
+    return f"Target area about {int(x2 - x1)}x{int(y2 - y1)} px"
+
+
+def _write_yolo_overview(path: Path, images: list[Path], yolo_pred_dir: Path) -> None:
+    selected = []
+    for source in images:
+        label_path = yolo_pred_dir / "labels" / f"{source.stem}.txt"
+        if label_path.exists():
+            selected.append((source, label_path))
+        if len(selected) == 6:
+            break
+    if not selected:
+        return
+    canvas = Image.new("RGB", (1800, 1200), "white")
+    draw = ImageDraw.Draw(canvas)
+    draw.text((64, 44), "YOLO prediction overview", fill=TEXT, font=_font(44))
+    draw.text((64, 108), "Only samples with prediction labels are kept for the overview.", fill=MUTED, font=_font(24))
+    x_positions = [64, 618, 1172]
+    y_positions = [180, 640]
+    for index, (source, label_path) in enumerate(selected):
+        x = x_positions[index % 3]
+        y = y_positions[index // 3]
+        tile = Image.new("RGB", (520, 410), "#ffffff")
+        img = Image.open(source).convert("RGB")
+        boxes = _read_yolo_boxes(label_path, img.size)
+        _draw_boxes(img, boxes, YOLO_COLOR, width=3)
+        fitted = ImageOps.contain(img, (520, 330), Image.Resampling.LANCZOS)
+        tile.paste(fitted, ((520 - fitted.width) // 2, 0))
+        draw_tile = ImageDraw.Draw(tile)
+        draw_tile.text((12, 342), source.name, fill=TEXT, font=_font(18))
+        draw_tile.text((12, 372), f"{len(boxes)} boxes", fill=MUTED, font=_font(16))
+        canvas.paste(tile, (x, y))
+        draw.rectangle((x, y, x + 520, y + 410), outline=PANEL_BORDER, width=2)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    canvas.save(path)
+
+
+def _draw_grid(image: Image.Image) -> None:
+    draw = ImageDraw.Draw(image, "RGBA")
+    w, h = image.size
+    for x in range(w // 4, w, w // 4):
+        draw.line((x, 0, x, h), fill=(120, 130, 145, 60), width=1)
+    for y in range(h // 4, h, h // 4):
+        draw.line((0, y, w, y), fill=(120, 130, 145, 60), width=1)
+
+
+def _font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    for path in [
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+        "/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/truetype/noto/NotoSansMono-Regular.ttf",
+    ]:
+        candidate = Path(path)
+        if candidate.exists():
+            return ImageFont.truetype(str(candidate), size=size)
+    return ImageFont.load_default()
 
 
 def _read_yolo_metrics(results_csv: Path) -> list[dict[str, str]]:

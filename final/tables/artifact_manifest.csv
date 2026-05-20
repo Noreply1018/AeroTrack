@@ -1,12 +1,12 @@
 name,section,source,status,target
-GT 可视化抽查,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000163.png,copied,final/figures/data_conversion/gt_visual_check_01_2019-09-16-12-52-12_000163.png
-GT 可视化抽查,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000164.png,copied,final/figures/data_conversion/gt_visual_check_02_2019-09-16-12-52-12_000164.png
-GT 可视化抽查,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000165.png,copied,final/figures/data_conversion/gt_visual_check_03_2019-09-16-12-52-12_000165.png
-GT 可视化抽查,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000166.png,copied,final/figures/data_conversion/gt_visual_check_04_2019-09-16-12-52-12_000166.png
-GT 可视化抽查,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000167.png,copied,final/figures/data_conversion/gt_visual_check_05_2019-09-16-12-52-12_000167.png
-GT 可视化抽查,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000168.png,copied,final/figures/data_conversion/gt_visual_check_06_2019-09-16-12-52-12_000168.png
-GT 可视化抽查,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000169.png,copied,final/figures/data_conversion/gt_visual_check_07_2019-09-16-12-52-12_000169.png
-GT 可视化抽查,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000170.png,copied,final/figures/data_conversion/gt_visual_check_08_2019-09-16-12-52-12_000170.png
+GT 可视化抽查展示版,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000163.png,rendered,final/figures/data_conversion/gt_visual_check_01_2019-09-16-12-52-12_000163.png
+GT 可视化抽查展示版,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000164.png,rendered,final/figures/data_conversion/gt_visual_check_02_2019-09-16-12-52-12_000164.png
+GT 可视化抽查展示版,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000165.png,rendered,final/figures/data_conversion/gt_visual_check_03_2019-09-16-12-52-12_000165.png
+GT 可视化抽查展示版,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000166.png,rendered,final/figures/data_conversion/gt_visual_check_04_2019-09-16-12-52-12_000166.png
+GT 可视化抽查展示版,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000167.png,rendered,final/figures/data_conversion/gt_visual_check_05_2019-09-16-12-52-12_000167.png
+GT 可视化抽查展示版,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000168.png,rendered,final/figures/data_conversion/gt_visual_check_06_2019-09-16-12-52-12_000168.png
+GT 可视化抽查展示版,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000169.png,rendered,final/figures/data_conversion/gt_visual_check_07_2019-09-16-12-52-12_000169.png
+GT 可视化抽查展示版,data_conversion,data/processed/carrada_ra_cpu10/visual_checks/gt/2019-09-16-12-52-12_000170.png,rendered,final/figures/data_conversion/gt_visual_check_08_2019-09-16-12-52-12_000170.png
 sample_index.csv,data_conversion,data/processed/carrada_ra_cpu10/sample_index.csv,copied,final/tables/cpu10_sample_index.csv
 annotations.csv,data_conversion,data/processed/carrada_ra_cpu10/annotations.csv,copied,final/tables/cpu10_annotations.csv
 conversion_records.csv,data_conversion,data/processed/carrada_ra_cpu10/conversion_records.csv,copied,final/tables/cpu10_conversion_records.csv
@@ -19,18 +19,18 @@ slide_05_single_target_detail.png,diagnostic_pipeline,runs/carrada_ra_gtbbox_sor
 slide_06_track_strip.png,diagnostic_pipeline,runs/carrada_ra_gtbbox_sort_smoke/showcase/slides/slide_06_track_strip.png,copied,final/figures/diagnostic_pipeline/slide_06_track_strip.png
 slide_07_sort_sweep.png,diagnostic_pipeline,runs/carrada_ra_gtbbox_sort_smoke/showcase/slides/slide_07_sort_sweep.png,copied,final/figures/diagnostic_pipeline/slide_07_sort_sweep.png
 slide_08_scale_comparison.png,diagnostic_pipeline,runs/carrada_ra_gtbbox_sort_smoke/showcase/slides/slide_08_scale_comparison.png,copied,final/figures/diagnostic_pipeline/slide_08_scale_comparison.png
-CPU10 SORT 跟踪图,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000163.png,copied,final/figures/tracking/cpu10_track_01_2019-09-16-12-52-12_000163.png
-CPU10 SORT 跟踪图,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000164.png,copied,final/figures/tracking/cpu10_track_02_2019-09-16-12-52-12_000164.png
-CPU10 SORT 跟踪图,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000165.png,copied,final/figures/tracking/cpu10_track_03_2019-09-16-12-52-12_000165.png
-CPU10 SORT 跟踪图,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000166.png,copied,final/figures/tracking/cpu10_track_04_2019-09-16-12-52-12_000166.png
-CPU10 SORT 跟踪图,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000167.png,copied,final/figures/tracking/cpu10_track_05_2019-09-16-12-52-12_000167.png
-CPU10 SORT 跟踪图,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000168.png,copied,final/figures/tracking/cpu10_track_06_2019-09-16-12-52-12_000168.png
-CPU10 SORT 跟踪图,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000169.png,copied,final/figures/tracking/cpu10_track_07_2019-09-16-12-52-12_000169.png
-CPU10 SORT 跟踪图,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000170.png,copied,final/figures/tracking/cpu10_track_08_2019-09-16-12-52-12_000170.png
-CPU10 SORT 跟踪图,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000171.png,copied,final/figures/tracking/cpu10_track_09_2019-09-16-12-52-12_000171.png
-CPU10 SORT 跟踪图,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000172.png,copied,final/figures/tracking/cpu10_track_10_2019-09-16-12-52-12_000172.png
-CPU10 SORT 跟踪图,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000173.png,copied,final/figures/tracking/cpu10_track_11_2019-09-16-12-52-12_000173.png
-CPU10 SORT 跟踪图,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000174.png,copied,final/figures/tracking/cpu10_track_12_2019-09-16-12-52-12_000174.png
+CPU10 SORT 跟踪展示版,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000163.png,rendered,final/figures/tracking/cpu10_track_01_2019-09-16-12-52-12_000163.png
+CPU10 SORT 跟踪展示版,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000164.png,rendered,final/figures/tracking/cpu10_track_02_2019-09-16-12-52-12_000164.png
+CPU10 SORT 跟踪展示版,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000165.png,rendered,final/figures/tracking/cpu10_track_03_2019-09-16-12-52-12_000165.png
+CPU10 SORT 跟踪展示版,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000166.png,rendered,final/figures/tracking/cpu10_track_04_2019-09-16-12-52-12_000166.png
+CPU10 SORT 跟踪展示版,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000167.png,rendered,final/figures/tracking/cpu10_track_05_2019-09-16-12-52-12_000167.png
+CPU10 SORT 跟踪展示版,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000168.png,rendered,final/figures/tracking/cpu10_track_06_2019-09-16-12-52-12_000168.png
+CPU10 SORT 跟踪展示版,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000169.png,rendered,final/figures/tracking/cpu10_track_07_2019-09-16-12-52-12_000169.png
+CPU10 SORT 跟踪展示版,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000170.png,rendered,final/figures/tracking/cpu10_track_08_2019-09-16-12-52-12_000170.png
+CPU10 SORT 跟踪展示版,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000171.png,rendered,final/figures/tracking/cpu10_track_09_2019-09-16-12-52-12_000171.png
+CPU10 SORT 跟踪展示版,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000172.png,rendered,final/figures/tracking/cpu10_track_10_2019-09-16-12-52-12_000172.png
+CPU10 SORT 跟踪展示版,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000173.png,rendered,final/figures/tracking/cpu10_track_11_2019-09-16-12-52-12_000173.png
+CPU10 SORT 跟踪展示版,tracking,runs/carrada_ra_gtbbox_sort_cpu10/visualizations/tracks/2019-09-16-12-52-12_000174.png,rendered,final/figures/tracking/cpu10_track_12_2019-09-16-12-52-12_000174.png
 smoke_summary.csv,diagnostic_pipeline,runs/carrada_ra_gtbbox_sort_smoke/metrics/summary.csv,copied,final/tables/smoke_summary.csv
 cpu10_summary.csv,diagnostic_pipeline,runs/carrada_ra_gtbbox_sort_cpu10/metrics/summary.csv,copied,final/tables/cpu10_summary.csv
 server30_summary.csv,diagnostic_pipeline,runs/carrada_ra_gtbbox_sort_server30/metrics/summary.csv,copied,final/tables/server30_summary.csv
@@ -55,27 +55,16 @@ train_batch1.jpg,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/
 train_batch2.jpg,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/train_batch2.jpg,copied,final/figures/yolo_training/train_batch2.jpg
 results.csv,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/results.csv,copied,final/tables/yolo_results.csv
 args.yaml,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/args.yaml,copied,final/tables/yolo_args.yaml
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000024.jpg,copied,final/figures/yolo_predictions/prediction_01_000024.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000025.jpg,copied,final/figures/yolo_predictions/prediction_02_000025.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000026.jpg,copied,final/figures/yolo_predictions/prediction_03_000026.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000027.jpg,copied,final/figures/yolo_predictions/prediction_04_000027.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000028.jpg,copied,final/figures/yolo_predictions/prediction_05_000028.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000029.jpg,copied,final/figures/yolo_predictions/prediction_06_000029.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000030.jpg,copied,final/figures/yolo_predictions/prediction_07_000030.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000031.jpg,copied,final/figures/yolo_predictions/prediction_08_000031.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000032.jpg,copied,final/figures/yolo_predictions/prediction_09_000032.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000033.jpg,copied,final/figures/yolo_predictions/prediction_10_000033.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000034.jpg,copied,final/figures/yolo_predictions/prediction_11_000034.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000035.jpg,copied,final/figures/yolo_predictions/prediction_12_000035.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000036.jpg,copied,final/figures/yolo_predictions/prediction_13_000036.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000037.jpg,copied,final/figures/yolo_predictions/prediction_14_000037.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000038.jpg,copied,final/figures/yolo_predictions/prediction_15_000038.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000039.jpg,copied,final/figures/yolo_predictions/prediction_16_000039.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000040.jpg,copied,final/figures/yolo_predictions/prediction_17_000040.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000041.jpg,copied,final/figures/yolo_predictions/prediction_18_000041.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000042.jpg,copied,final/figures/yolo_predictions/prediction_19_000042.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000043.jpg,copied,final/figures/yolo_predictions/prediction_20_000043.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000044.jpg,copied,final/figures/yolo_predictions/prediction_21_000044.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000045.jpg,copied,final/figures/yolo_predictions/prediction_22_000045.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000046.jpg,copied,final/figures/yolo_predictions/prediction_23_000046.jpg
-YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000047.jpg,copied,final/figures/yolo_predictions/prediction_24_000047.jpg
+YOLO 预测展示版,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000042.jpg,rendered,final/figures/yolo_predictions/prediction_01_000042.jpg
+YOLO 预测展示版,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000039.jpg,rendered,final/figures/yolo_predictions/prediction_02_000039.jpg
+YOLO 预测展示版,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000045.jpg,rendered,final/figures/yolo_predictions/prediction_03_000045.jpg
+YOLO 预测展示版,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000044.jpg,rendered,final/figures/yolo_predictions/prediction_04_000044.jpg
+YOLO 预测展示版,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000047.jpg,rendered,final/figures/yolo_predictions/prediction_05_000047.jpg
+YOLO 预测展示版,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000046.jpg,rendered,final/figures/yolo_predictions/prediction_06_000046.jpg
+YOLO 预测展示版,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000036.jpg,rendered,final/figures/yolo_predictions/prediction_07_000036.jpg
+YOLO 预测展示版,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000041.jpg,rendered,final/figures/yolo_predictions/prediction_08_000041.jpg
+YOLO 预测展示版,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000043.jpg,rendered,final/figures/yolo_predictions/prediction_09_000043.jpg
+YOLO 预测展示版,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000034.jpg,rendered,final/figures/yolo_predictions/prediction_10_000034.jpg
+YOLO 预测展示版,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000037.jpg,rendered,final/figures/yolo_predictions/prediction_11_000037.jpg
+YOLO 预测展示版,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000040.jpg,rendered,final/figures/yolo_predictions/prediction_12_000040.jpg
+YOLO 预测总览,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred,rendered,final/figures/yolo_predictions/overview.png

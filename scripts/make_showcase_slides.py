@@ -13,7 +13,7 @@ except ImportError:  # pragma: no cover - the PNG fallback keeps the script usab
     np = None
 
 
-CANVAS = (1600, 1000)
+CANVAS = (1600, 900)
 BACKGROUND = (255, 255, 255)
 TEXT = (24, 28, 34)
 MUTED = (85, 92, 105)
@@ -35,6 +35,7 @@ def main() -> int:
     parser.add_argument("--summary", required=True)
     parser.add_argument("--failure-report", required=True)
     parser.add_argument("--cpu10-summary")
+    parser.add_argument("--server30-summary")
     parser.add_argument("--sort-sweep-summary")
     parser.add_argument("--output-dir", required=True)
     args = parser.parse_args()
@@ -50,6 +51,7 @@ def main() -> int:
     summary = _read_summary(Path(args.summary))
     failures = json.loads(Path(args.failure_report).read_text(encoding="utf-8"))
     cpu10_summary = _read_summary(Path(args.cpu10_summary)) if args.cpu10_summary else None
+    server30_summary = _read_summary(Path(args.server30_summary)) if args.server30_summary else None
     sort_sweep = _read_csv(Path(args.sort_sweep_summary)) if args.sort_sweep_summary else []
 
     source_lookup = _read_source_lookup(prepared_root)
@@ -63,7 +65,10 @@ def main() -> int:
     if sort_sweep:
         _make_sort_sweep_slide(output_dir, sort_sweep)
     if cpu10_summary:
-        _make_scale_comparison_slide(output_dir, summary, cpu10_summary)
+        scale_summaries = [summary, cpu10_summary]
+        if server30_summary:
+            scale_summaries.append(server30_summary)
+        _make_scale_comparison_slide(output_dir, scale_summaries)
     _write_selected_frames(Path(args.showcase_dir) / "selected_frames.csv", [primary_frame, *tracking_frames])
     return 0
 
@@ -81,8 +86,8 @@ def _make_large_triptych(
     draw = ImageDraw.Draw(image)
     title_font = _font(46)
     body_font = _font(23)
-    draw.text((64, 44), "AeroTrack CPU Diagnostic Loop", fill=TEXT, font=title_font)
-    draw.text((64, 108), "Full RA context, magnified target evidence, and same-frame camera reference. Detector source: gt_bbox, not YOLO.", fill=MUTED, font=body_font)
+    draw.text((64, 44), "RA context -> GT box -> SORT track", fill=TEXT, font=title_font)
+    draw.text((64, 108), "Diagnostic track source: converted GT boxes, not YOLO output.", fill=MUTED, font=body_font)
 
     layers = [
         (_rows_for_frame(tracks, frame), TRACK, 6),
@@ -96,24 +101,22 @@ def _make_large_triptych(
     for layer_rows, color, expand in layers:
         scaled = [_expanded_row(_scaled_row(row, 430 / source.width, 430 / source.height), expand) for row in layer_rows]
         _draw_boxes(full, scaled, color, width=4)
-    image.paste(full, (80, 220))
-    draw.rectangle((80, 220, 510, 650), outline=PANEL_BORDER, width=2)
+    image.paste(full, (80, 190))
+    draw.rectangle((80, 190, 510, 620), outline=PANEL_BORDER, width=2)
 
     zoom = _crop_zoom_layers(source, target_box, layers, output_size=(560, 430))
-    image.paste(zoom, (560, 220))
-    draw.rectangle((560, 220, 1120, 650), outline=ACCENT, width=4)
-    _paste_camera_reference(draw, image, prepared_root, frame, (1180, 220, 1540, 490), label="Camera reference")
+    image.paste(zoom, (560, 190))
+    draw.rectangle((560, 190, 1120, 620), outline=ACCENT, width=4)
+    _paste_camera_reference(draw, image, prepared_root, frame, (1180, 190, 1540, 460), label="Camera reference")
 
-    draw.text((80, 675), "Full RA frame", fill=TEXT, font=_font(23))
-    draw.text((560, 675), "Magnified target region", fill=TEXT, font=_font(23))
-    legend_y = 720
+    draw.text((80, 645), "Full RA frame", fill=TEXT, font=_font(23))
+    draw.text((560, 645), "Magnified target region", fill=TEXT, font=_font(23))
+    legend_y = 690
     for label, color in [("GT annotation", GT), ("gt_bbox detection", DET), ("SORT track output", TRACK)]:
         draw.rectangle((560, legend_y, 590, legend_y + 20), fill=color)
         draw.text((605, legend_y - 4), label, fill=TEXT, font=_font(23))
         legend_y += 45
-    draw.text((80, 790), f"Frame {frame['sequence_id']} / {frame['frame_id']}", fill=TEXT, font=_font(24))
-    draw.text((80, 842), "This slide is for the pipeline handoff: GT annotation -> diagnostic detection -> SORT track output.", fill=MUTED, font=_font(21))
-    draw.text((80, 874), "The camera image is a same-frame reference to make the abstract RA evidence easier to explain.", fill=MUTED, font=_font(21))
+    draw.text((80, 820), f"Frame {frame['sequence_id']} / {frame['frame_id']}", fill=TEXT, font=_font(24))
     image.save(output_dir / "slide_01_large_triptych.png")
 
 
@@ -129,23 +132,21 @@ def _make_tracking_focus(
     title_font = _font(46)
     label_font = _font(22)
     body_font = _font(22)
-    draw.text((64, 44), "SORT Tracking Across Frames", fill=TEXT, font=title_font)
-    draw.text((64, 108), "Each frame pairs the RA track crop with a same-frame camera reference.", fill=MUTED, font=body_font)
+    draw.text((64, 44), "SORT tracking sequence", fill=TEXT, font=title_font)
+    draw.text((64, 108), "GT-driven diagnostic boxes are linked across frames to verify SORT visualization.", fill=MUTED, font=body_font)
     x_positions = [70, 450, 830, 1210]
     for x, frame in zip(x_positions, frames, strict=False):
         source = _source_image(prepared_root, frame, source_lookup)
         rows = _rows_for_frame(tracks, frame)
         box = _primary_box(rows)
         zoom = _crop_zoom(source, box, rows, TRACK, output_size=(300, 250))
-        image.paste(zoom, (x, 220))
-        draw.rectangle((x, 220, x + 300, 470), outline=TRACK, width=3)
-        _paste_camera_reference(draw, image, prepared_root, frame, (x, 488, x + 300, 660), label=None)
-        draw.text((x, 690), f"Frame {frame['frame_id']}", fill=TEXT, font=label_font)
-        draw.text((x, 720), _panel_detail("SORT track output", rows), fill=MUTED, font=_font(18))
-    draw.line((64, 790, 1536, 790), fill=(224, 228, 235), width=2)
-    draw.text((64, 830), "What to say", fill=ACCENT, font=_font(28))
-    draw.text((64, 878), "SORT consumes the same detections frame by frame and emits track IDs for sequence-level review.", fill=TEXT, font=body_font)
-    draw.text((64, 918), "Camera references are for human orientation only; tracking still runs on RA detections.", fill=TEXT, font=body_font)
+        image.paste(zoom, (x, 200))
+        draw.rectangle((x, 200, x + 300, 450), outline=TRACK, width=3)
+        _paste_camera_reference(draw, image, prepared_root, frame, (x, 468, x + 300, 640), label=None)
+        draw.text((x, 672), f"Frame {frame['frame_id']}", fill=TEXT, font=label_font)
+        draw.text((x, 704), _panel_detail("SORT track output", rows), fill=MUTED, font=_font(18))
+    draw.line((64, 780, 1536, 780), fill=(224, 228, 235), width=2)
+    draw.text((64, 820), "Boundary: this sequence validates SORT and reporting with converted GT boxes.", fill=TEXT, font=body_font)
     image.save(output_dir / "slide_02_tracking_sequence.png")
 
 
@@ -180,8 +181,8 @@ def _make_failure_slide(output_dir: Path, failures: dict[str, object]) -> None:
     title_font = _font(46)
     header_font = _font(28)
     body_font = _font(26)
-    draw.text((64, 46), "Failure Report Check", fill=TEXT, font=title_font)
-    draw.text((64, 112), "For gt_bbox diagnostics, missed and false-alarm frame lists are empty; ID failure examples are not enabled.", fill=MUTED, font=_font(23))
+    draw.text((64, 46), "Diagnostic boundary check", fill=TEXT, font=title_font)
+    draw.text((64, 112), "The current failure report is generated, but ID-switch and fragmentation examples are not wired yet.", fill=MUTED, font=_font(23))
     rows = [
         ("Missed frames", str(len(failures.get("missed_frames", [])))),
         ("False-alarm frames", str(len(failures.get("false_alarm_frames", [])))),
@@ -189,10 +190,9 @@ def _make_failure_slide(output_dir: Path, failures: dict[str, object]) -> None:
         ("ID switch examples", _status(failures.get("id_switch_examples"))),
         ("Fragmentation examples", _status(failures.get("fragmentation_examples"))),
     ]
-    _draw_table(draw, rows, (160, 250), (1280, 430), header_font, body_font)
-    draw.text((64, 770), "Boundary", fill=ACCENT, font=header_font)
-    draw.text((64, 820), "This proves the failure report is generated and records no detection misses/false alarms in this diagnostic run.", fill=TEXT, font=_font(24))
-    draw.text((64, 860), "It does not mean a real YOLO detector would have zero failures.", fill=TEXT, font=_font(24))
+    _draw_table(draw, rows, (160, 215), (1280, 450), header_font, body_font)
+    draw.text((64, 730), "Use as diagnostic-boundary evidence, not as a concrete failure-case screenshot.", fill=TEXT, font=_font(24))
+    draw.text((64, 770), "Next work: add IDF1, ID switch, fragmentation, and real broken-track examples.", fill=TEXT, font=_font(24))
     image.save(output_dir / "slide_04_failure_report.png")
 
 
@@ -207,8 +207,8 @@ def _make_single_target_slide(
 ) -> None:
     image = Image.new("RGB", CANVAS, BACKGROUND)
     draw = ImageDraw.Draw(image)
-    draw.text((64, 44), "Single Target Detail", fill=TEXT, font=_font(46))
-    draw.text((64, 108), "A readable target inspection view: full RA context, magnified RA target, and camera reference.", fill=MUTED, font=_font(23))
+    draw.text((64, 44), "Single target detail", fill=TEXT, font=_font(46))
+    draw.text((64, 108), "Full RA context, magnified target, and camera reference in one readable view.", fill=MUTED, font=_font(23))
     source = _source_image(prepared_root, frame, source_lookup)
     rows = [
         ("GT", _rows_for_frame(annotations, frame), GT),
@@ -225,23 +225,21 @@ def _make_single_target_slide(
     for layer_rows, color, expand in display_layers:
         scaled = [_expanded_row(_scaled_row(row, 430 / source.width, 430 / source.height), expand) for row in layer_rows]
         _draw_boxes(full, scaled, color, width=4)
-    image.paste(full, (80, 220))
-    draw.rectangle((80, 220, 510, 650), outline=PANEL_BORDER, width=2)
+    image.paste(full, (80, 190))
+    draw.rectangle((80, 190, 510, 620), outline=PANEL_BORDER, width=2)
     zoom = _crop_zoom_layers(source, target_box, display_layers, output_size=(560, 430))
-    image.paste(zoom, (560, 220))
-    draw.rectangle((560, 220, 1120, 650), outline=ACCENT, width=4)
-    _paste_camera_reference(draw, image, prepared_root, frame, (1180, 220, 1540, 490), label="Camera reference")
+    image.paste(zoom, (560, 190))
+    draw.rectangle((560, 190, 1120, 620), outline=ACCENT, width=4)
+    _paste_camera_reference(draw, image, prepared_root, frame, (1180, 190, 1540, 460), label="Camera reference")
 
-    draw.text((80, 675), "Full RA frame", fill=TEXT, font=_font(23))
-    draw.text((560, 675), "Magnified target region", fill=TEXT, font=_font(23))
-    legend_y = 720
+    draw.text((80, 645), "Full RA frame", fill=TEXT, font=_font(23))
+    draw.text((560, 645), "Magnified target region", fill=TEXT, font=_font(23))
+    legend_y = 690
     for label, _, color in rows:
         draw.rectangle((560, legend_y, 590, legend_y + 20), fill=color)
         draw.text((605, legend_y - 4), label, fill=TEXT, font=_font(23))
         legend_y += 45
-    draw.text((80, 790), f"Frame {frame['sequence_id']} / {frame['frame_id']}", fill=TEXT, font=_font(24))
-    draw.text((80, 842), "RA color map is clipped and contrast-enhanced for presentation only.", fill=MUTED, font=_font(21))
-    draw.text((80, 874), "Detection and tracking boxes still use the original CARRADA Range-Angle coordinates.", fill=MUTED, font=_font(21))
+    draw.text((80, 820), f"Frame {frame['sequence_id']} / {frame['frame_id']}", fill=TEXT, font=_font(24))
     image.save(output_dir / "slide_05_single_target_detail.png")
 
 
@@ -254,23 +252,22 @@ def _make_track_strip_slide(
 ) -> None:
     image = Image.new("RGB", CANVAS, BACKGROUND)
     draw = ImageDraw.Draw(image)
-    draw.text((64, 44), "Track Strip: Same ID Over Time", fill=TEXT, font=_font(46))
-    draw.text((64, 108), "A compact strip view for explaining sequence-level tracking without crowding the slide.", fill=MUTED, font=_font(23))
+    draw.text((64, 44), "Same track ID over time", fill=TEXT, font=_font(46))
+    draw.text((64, 108), "A compact strip for explaining sequence continuity without embedding a full report page.", fill=MUTED, font=_font(23))
     extended = _extend_track_window(tracks, frames, limit=6)
     x = 70
     for frame in extended:
         source = _source_image(prepared_root, frame, source_lookup)
         rows = _rows_for_frame(tracks, frame)
         zoom = _crop_zoom(source, _primary_box(rows), rows, TRACK, output_size=(220, 220))
-        image.paste(zoom, (x, 230))
-        draw.rectangle((x, 230, x + 220, 450), outline=TRACK, width=3)
-        _paste_camera_reference(draw, image, prepared_root, frame, (x, 468, x + 220, 600), label=None)
-        draw.text((x, 625), frame["frame_id"], fill=TEXT, font=_font(21))
-        draw.text((x, 655), _panel_detail("SORT track output", rows), fill=MUTED, font=_font(17))
+        image.paste(zoom, (x, 220))
+        draw.rectangle((x, 220, x + 220, 440), outline=TRACK, width=3)
+        _paste_camera_reference(draw, image, prepared_root, frame, (x, 458, x + 220, 590), label=None)
+        draw.text((x, 615), frame["frame_id"], fill=TEXT, font=_font(21))
+        draw.text((x, 645), _panel_detail("SORT track output", rows), fill=MUTED, font=_font(17))
         x += 245
     draw.line((64, 735, 1536, 735), fill=(224, 228, 235), width=2)
-    draw.text((64, 780), "Use this slide when you need more than four frames but still want each target box readable.", fill=TEXT, font=_font(24))
-    draw.text((64, 820), "The paired camera strip keeps the audience grounded while the RA crops show the track evidence.", fill=MUTED, font=_font(22))
+    draw.text((64, 780), "Best used as the project-feature slide: one ID remains readable across the sequence.", fill=TEXT, font=_font(24))
     image.save(output_dir / "slide_06_track_strip.png")
 
 
@@ -279,40 +276,28 @@ def _make_sort_sweep_slide(output_dir: Path, rows: list[dict[str, str]]) -> None
     draw = ImageDraw.Draw(image)
     draw.text((64, 44), "SORT Parameter Sweep", fill=TEXT, font=_font(46))
     draw.text((64, 108), "MOTA changes with association threshold and track confirmation settings on the CPU diagnostic run.", fill=MUTED, font=_font(23))
-    chart = (160, 230, 1380, 690)
+    chart = (160, 210, 1380, 640)
     _draw_bar_chart(
         draw,
-        [(f"age {r['max_age']}\nhit {r['min_hits']}\niou {r['iou_threshold']}", float(r["mota"])) for r in rows],
+        [(f"age={r['max_age']} hit={r['min_hits']} iou={r['iou_threshold']}", float(r["mota"])) for r in rows],
         chart,
         "MOTA",
         TRACK,
     )
-    draw.text((160, 855), "Interpretation: with gt_bbox detections fixed, changes mainly reflect SORT association behavior.", fill=TEXT, font=_font(24))
+    draw.text((160, 805), "Interpretation: with gt_bbox detections fixed, changes mainly reflect SORT association behavior.", fill=TEXT, font=_font(24))
     image.save(output_dir / "slide_07_sort_sweep.png")
 
 
-def _make_scale_comparison_slide(output_dir: Path, smoke: dict[str, str], cpu10: dict[str, str]) -> None:
+def _make_scale_comparison_slide(output_dir: Path, summaries: list[dict[str, str]]) -> None:
     image = Image.new("RGB", CANVAS, BACKGROUND)
     draw = ImageDraw.Draw(image)
-    draw.text((64, 44), "CPU Scale-Up Check", fill=TEXT, font=_font(46))
-    draw.text((64, 108), "The same diagnostic loop was also run on a larger 10-sequence processed set.", fill=MUTED, font=_font(23))
-    values = [
-        ("test frames", float(smoke["num_frames"]), float(cpu10["num_frames"])),
-        ("MOTA", float(smoke["mota"]), float(cpu10["mota"])),
-    ]
-    x0, y0 = 180, 250
-    for idx, (label, smoke_value, cpu_value) in enumerate(values):
-        y = y0 + idx * 240
-        max_value = max(smoke_value, cpu_value, 1.0)
-        draw.text((x0, y), label, fill=TEXT, font=_font(28))
-        _bar_pair(draw, x0 + 260, y + 5, smoke_value, cpu_value, max_value)
-    legend_x = 1160
-    draw.rectangle((legend_x, 250, legend_x + 30, 280), fill=DET)
-    draw.text((legend_x + 45, 245), "smoke", fill=TEXT, font=_font(24))
-    draw.rectangle((legend_x, 295, legend_x + 30, 325), fill=TRACK)
-    draw.text((legend_x + 45, 290), "cpu10", fill=TEXT, font=_font(24))
-    draw.text((180, 780), "Detection metrics remain ideal because the source is gt_bbox.", fill=TEXT, font=_font(22))
-    draw.text((180, 815), "The scale-up proves CPU data conversion and archiving capacity.", fill=TEXT, font=_font(22))
+    draw.text((64, 44), "Scale comparison: smoke / CPU10 / server30", fill=TEXT, font=_font(46))
+    draw.text((64, 108), "Same gt_bbox + SORT diagnostic loop, expanded to larger processed splits.", fill=MUTED, font=_font(23))
+    rows = [(_scale_label(row), float(row["num_frames"]), float(row["mota"])) for row in summaries]
+    colors = [DET, TRACK, (42, 183, 169)]
+    _draw_grouped_scale_chart(draw, rows, colors, (180, 220, 1320, 620))
+    draw.text((180, 770), "Boundary: detection metrics stay ideal because boxes come from gt_bbox conversion.", fill=TEXT, font=_font(22))
+    draw.text((180, 805), "Use this page to prove scaling and archiving capacity, not YOLO end-to-end accuracy.", fill=TEXT, font=_font(22))
     image.save(output_dir / "slide_08_scale_comparison.png")
 
 
@@ -483,27 +468,59 @@ def _draw_bar_chart(
         height = int((y2 - y1 - 40) * value / max_value)
         draw.rectangle((cx - bar_width // 2, y2 - height, cx + bar_width // 2, y2), fill=color)
         draw.text((cx - 38, y2 - height - 32), f"{value:.3f}", fill=TEXT, font=_font(18))
-        lines = label.split("\n")
-        for offset, line in enumerate(lines):
-            draw.text((cx - 42, y2 + 12 + offset * 18), line, fill=MUTED, font=_font(14))
+        draw.text((cx - 82, y2 + 16), label, fill=MUTED, font=_font(14))
     draw.text((x1 - 72, y1 + 10), ylabel, fill=MUTED, font=_font(20))
 
 
-def _bar_pair(
+def _draw_grouped_scale_chart(
     draw: ImageDraw.ImageDraw,
-    x: int,
-    y: int,
-    smoke_value: float,
-    cpu_value: float,
-    max_value: float,
+    rows: list[tuple[str, float, float]],
+    colors: list[tuple[int, int, int]],
+    box: tuple[int, int, int, int],
 ) -> None:
-    width = 560
-    smoke_w = int(width * smoke_value / max_value)
-    cpu_w = int(width * cpu_value / max_value)
-    draw.rectangle((x, y, x + smoke_w, y + 45), fill=DET)
-    draw.text((x + smoke_w + 15, y + 8), f"{smoke_value:.3g}", fill=TEXT, font=_font(22))
-    draw.rectangle((x, y + 65, x + cpu_w, y + 110), fill=TRACK)
-    draw.text((x + cpu_w + 15, y + 73), f"{cpu_value:.3g}", fill=TEXT, font=_font(22))
+    x1, y1, x2, y2 = box
+    label_x = x1
+    bar_x = x1 + 250
+    bar_width = x2 - bar_x
+    metric_gap = 235
+    bar_gap = 48
+    max_frames = max((frames for _, frames, _ in rows), default=1.0)
+    max_mota = max((mota for _, _, mota in rows), default=1.0)
+    for metric_index, (metric_label, max_value, extractor) in enumerate(
+        [
+            ("test frames", max_frames, lambda item: item[1]),
+            ("MOTA", max_mota, lambda item: item[2]),
+        ]
+    ):
+        y = y1 + metric_index * metric_gap
+        draw.text((label_x, y + 26), metric_label, fill=TEXT, font=_font(28))
+        for row_index, item in enumerate(rows):
+            label, _, _ = item
+            value = float(extractor(item))
+            color = colors[row_index % len(colors)]
+            bar_y = y + row_index * bar_gap
+            width = int(bar_width * value / max(max_value, 1e-6))
+            draw.rectangle((bar_x, bar_y, bar_x + width, bar_y + 34), fill=color)
+            draw.text((bar_x + width + 14, bar_y + 3), _scale_value(value, metric_label), fill=TEXT, font=_font(22))
+            if metric_index == 0:
+                draw.text((bar_x - 120, bar_y + 3), label, fill=MUTED, font=_font(21))
+
+
+def _scale_label(row: dict[str, str]) -> str:
+    name = row.get("experiment_name", "").lower()
+    if "server30" in name:
+        return "server30"
+    if "cpu10" in name:
+        return "CPU10"
+    if "smoke" in name:
+        return "smoke"
+    return row.get("scale", "run")
+
+
+def _scale_value(value: float, metric_label: str) -> str:
+    if metric_label == "test frames":
+        return str(int(round(value)))
+    return f"{value:.3f}".rstrip("0").rstrip(".")
 
 
 def _select_showcase_frames(detections: list[dict[str, str]], *, limit: int) -> list[dict[str, str]]:
