@@ -5,6 +5,8 @@ import importlib.util
 import json
 from pathlib import Path
 
+from PIL import Image
+
 
 def _load_script(name: str):
     path = Path(__file__).resolve().parents[1] / "scripts" / f"{name}.py"
@@ -67,6 +69,18 @@ def test_showcase_helpers_read_real_summary_shape(tmp_path):
     assert make_showcase_slides._fmt(summary["mota"]) == "0.520"
     assert make_showcase_slides._status(failure_report["id_switch_examples"]) == "unavailable"
     assert make_showcase_slides._status(json.loads("{}")) == "unavailable"
+
+
+def test_showcase_colorize_ra_returns_rgb_image():
+    make_showcase_slides = _load_script("make_showcase_slides")
+    gray = Image.new("L", (2, 1))
+    gray.putpixel((0, 0), 0)
+    gray.putpixel((1, 0), 255)
+
+    colorized = make_showcase_slides._colorize_ra(gray)
+
+    assert colorized.mode == "RGB"
+    assert colorized.getpixel((0, 0)) != colorized.getpixel((1, 0))
 
 
 def test_sort_sweep_variants_override_base_and_write_csv(tmp_path):

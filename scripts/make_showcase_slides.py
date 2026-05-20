@@ -5,7 +5,7 @@ import csv
 import json
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 
 CANVAS = (1600, 1000)
@@ -280,7 +280,13 @@ def _panel_detail(label: str, rows: list[dict[str, str]]) -> str:
 
 
 def _source_image(prepared_root: Path, frame: dict[str, str]) -> Image.Image:
-    return Image.open(prepared_root / "images" / frame["sequence_id"] / f"{frame['frame_id']}.png").convert("RGB")
+    gray = Image.open(prepared_root / "images" / frame["sequence_id"] / f"{frame['frame_id']}.png").convert("L")
+    return _colorize_ra(gray)
+
+
+def _colorize_ra(gray: Image.Image) -> Image.Image:
+    enhanced = ImageOps.autocontrast(gray)
+    return ImageOps.colorize(enhanced, black="#101820", mid="#2364aa", white="#fff2a8")
 
 
 def _rows_for_frame(rows: list[dict[str, str]], frame: dict[str, str]) -> list[dict[str, str]]:
