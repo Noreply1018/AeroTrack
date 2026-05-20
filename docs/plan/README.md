@@ -7,6 +7,7 @@
 ## 文档索引
 
 1. [Stage1.md](./Stage1.md)：第一阶段实施计划。
+2. [CpuDeliverablesPlan.md](./CpuDeliverablesPlan.md)：当前 CPU 环境下可真实产出的材料计划。
 
 ## 命名约定
 
