@@ -15,7 +15,7 @@ from aerotrack.contracts import ANNOTATION_FIELDS, DETECTION_FIELDS, TRACK_FIELD
 UNAVAILABLE_METRIC = {
     "status": "unavailable",
     "value": None,
-    "reason": "Stage1 gt_bbox smoke keeps ID metrics disabled until GT track identity stability is audited.",
+    "reason": "ID metrics are disabled until IDF1, ID switches, and fragmentation calculations are wired into evaluation.",
 }
 
 
