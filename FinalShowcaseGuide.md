@@ -60,6 +60,18 @@
 
 这张图用于说明失败样例报告已经生成。当前 `gt_bbox` 诊断检测口径下，漏检帧和虚警帧数量为 0；ID switch 和 fragmentation 样例仍然保持 unavailable。展示时要强调这不是“真实模型没有失败”，而是“诊断检测链路没有发现检测层面的漏检或虚警”。
 
+### 单目标细节图
+
+![AeroTrack 单目标细节图](runs/carrada_ra_gtbbox_sort_smoke/showcase/slides/slide_05_single_target_detail.png)
+
+这张图用于单独解释一个目标在 Range-Angle 图中的位置。左侧保留全局雷达图，右侧给出目标区域放大图，并用颜色区分 GT、诊断检测和 SORT track。这里的伪彩色只用于展示，底层数据仍来自 CARRADA Range-Angle prepared PNG。
+
+### 连续轨迹条带图
+
+![AeroTrack 连续轨迹条带图](runs/carrada_ra_gtbbox_sort_smoke/showcase/slides/slide_06_track_strip.png)
+
+这张图比四帧跟踪页更适合展示“同一个 ID 随时间延续”。它把同一 track ID 的多个连续帧排成条带，适合在答辩中说明项目已经从单帧框推进到序列级轨迹复核。
+
 ### 身份稳定性审计
 
 | 审计项 | 结果 |
@@ -76,6 +88,8 @@
 
 ### SORT 参数消融
 
+![AeroTrack SORT 参数消融图](runs/carrada_ra_gtbbox_sort_smoke/showcase/slides/slide_07_sort_sweep.png)
+
 | max_age | min_hits | IOU 阈值 | 轨迹数 | 轨迹行数 | MOTA | TP | FP | FN |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | 1 | 1 | 0.10 | 732 | 2,425 | 0.700 | 363 | 0 | 0 |
@@ -88,6 +102,8 @@
 这张表可以说明 SORT 参数会明显影响轨迹连续性和 MOTA。当前诊断检测没有漏检或虚警，所以不同参数的差异主要来自轨迹关联策略，而不是检测模型能力。
 
 ### 10 序列 CPU 扩展数据
+
+![AeroTrack CPU 规模扩展对比图](runs/carrada_ra_gtbbox_sort_smoke/showcase/slides/slide_08_scale_comparison.png)
 
 | 展示项 | smoke 闭环 | 10 序列扩展 |
 | --- | ---: | ---: |
@@ -135,10 +151,13 @@
 
 ## 7. 答辩展示建议
 
-建议最终展示控制在五页：
+建议最终展示控制在八页：
 
 1. 第一页放总体展示图，讲清楚“GT、诊断检测、SORT 跟踪”的关系。
 2. 第二页放连续帧跟踪图，强调项目不止单帧检测，还输出序列级轨迹。
-3. 第三页放指标表，说明 CPU 诊断闭环已经产出检测与跟踪指标。
-4. 第四页放 SORT 参数消融和 10 序列扩展数据，说明 CPU 上已经完成额外补强工作。
-5. 第五页放边界说明，明确 `gt_bbox` 是链路诊断，不是 YOLO baseline，并说明后续接入 YOLO 的工作点。
+3. 第三页放单目标细节图，解释伪彩色 RA 图和目标框。
+4. 第四页放轨迹条带图，展示同一 track ID 的连续帧。
+5. 第五页放指标表，说明 CPU 诊断闭环已经产出检测与跟踪指标。
+6. 第六页放失败样例检查页，说明当前诊断报告状态。
+7. 第七页放 SORT 参数消融图，说明跟踪参数影响。
+8. 第八页放 10 序列扩展图和边界说明，明确 `gt_bbox` 是链路诊断，不是 YOLO baseline。

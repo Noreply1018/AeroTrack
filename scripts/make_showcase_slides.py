@@ -27,6 +27,8 @@ def main() -> int:
     parser.add_argument("--tracks", required=True)
     parser.add_argument("--summary", required=True)
     parser.add_argument("--failure-report", required=True)
+    parser.add_argument("--cpu10-summary")
+    parser.add_argument("--sort-sweep-summary")
     parser.add_argument("--output-dir", required=True)
     args = parser.parse_args()
 
@@ -40,11 +42,19 @@ def main() -> int:
     tracking_frames = _select_tracking_frames(tracks, limit=4)
     summary = _read_summary(Path(args.summary))
     failures = json.loads(Path(args.failure_report).read_text(encoding="utf-8"))
+    cpu10_summary = _read_summary(Path(args.cpu10_summary)) if args.cpu10_summary else None
+    sort_sweep = _read_csv(Path(args.sort_sweep_summary)) if args.sort_sweep_summary else []
 
     _make_large_triptych(prepared_root, output_dir, primary_frame, annotations, detections, tracks)
     _make_tracking_focus(prepared_root, output_dir, tracking_frames, tracks)
     _make_metrics_slide(output_dir, summary)
     _make_failure_slide(output_dir, failures)
+    _make_single_target_slide(prepared_root, output_dir, primary_frame, annotations, detections, tracks)
+    _make_track_strip_slide(prepared_root, output_dir, tracking_frames, tracks)
+    if sort_sweep:
+        _make_sort_sweep_slide(output_dir, sort_sweep)
+    if cpu10_summary:
+        _make_scale_comparison_slide(output_dir, summary, cpu10_summary)
     _write_selected_frames(Path(args.showcase_dir) / "selected_frames.csv", [primary_frame, *tracking_frames])
     return 0
 
@@ -161,6 +171,107 @@ def _make_failure_slide(output_dir: Path, failures: dict[str, object]) -> None:
     image.save(output_dir / "slide_04_failure_report.png")
 
 
+def _make_single_target_slide(
+    prepared_root: Path,
+    output_dir: Path,
+    frame: dict[str, str],
+    annotations: list[dict[str, str]],
+    detections: list[dict[str, str]],
+    tracks: list[dict[str, str]],
+) -> None:
+    image = Image.new("RGB", CANVAS, BACKGROUND)
+    draw = ImageDraw.Draw(image)
+    draw.text((64, 44), "Single Target Detail", fill=TEXT, font=_font(46))
+    draw.text((64, 108), "A presentation-friendly view of one CARRADA Range-Angle frame and its diagnostic boxes.", fill=MUTED, font=_font(23))
+    source = _source_image(prepared_root, frame)
+    rows = [
+        ("GT", _rows_for_frame(annotations, frame), GT),
+        ("Detection", _rows_for_frame(detections, frame), DET),
+        ("Track", _rows_for_frame(tracks, frame), TRACK),
+    ]
+    target_box = _primary_box(rows[1][1])
+    full = source.copy()
+    for _, layer_rows, color in rows:
+        _draw_boxes(full, layer_rows, color)
+    image.paste(full.resize((520, 520), Image.Resampling.NEAREST), (90, 220))
+    draw.rectangle((90, 220, 610, 740), outline=(205, 212, 224), width=2)
+    zoom = _crop_zoom(source, target_box, [row for _, layer_rows, _ in rows for row in layer_rows], ACCENT)
+    image.paste(zoom.resize((560, 480), Image.Resampling.NEAREST), (760, 210))
+    draw.rectangle((760, 210, 1320, 690), outline=ACCENT, width=4)
+    legend_y = 725
+    for label, _, color in rows:
+        draw.rectangle((760, legend_y, 790, legend_y + 20), fill=color)
+        draw.text((805, legend_y - 4), label, fill=TEXT, font=_font(23))
+        legend_y += 45
+    draw.text((90, 775), f"Frame {frame['sequence_id']} / {frame['frame_id']}", fill=TEXT, font=_font(24))
+    draw.text((90, 830), "Color map is applied only for presentation.", fill=MUTED, font=_font(21))
+    draw.text((90, 862), "Source remains the CARRADA Range-Angle prepared PNG.", fill=MUTED, font=_font(21))
+    image.save(output_dir / "slide_05_single_target_detail.png")
+
+
+def _make_track_strip_slide(prepared_root: Path, output_dir: Path, frames: list[dict[str, str]], tracks: list[dict[str, str]]) -> None:
+    image = Image.new("RGB", CANVAS, BACKGROUND)
+    draw = ImageDraw.Draw(image)
+    draw.text((64, 44), "Track Strip: Same ID Over Time", fill=TEXT, font=_font(46))
+    draw.text((64, 108), "A compact strip view for explaining sequence-level tracking without crowding the slide.", fill=MUTED, font=_font(23))
+    extended = _extend_track_window(tracks, frames, limit=6)
+    x = 70
+    for frame in extended:
+        source = _source_image(prepared_root, frame)
+        rows = _rows_for_frame(tracks, frame)
+        zoom = _crop_zoom(source, _primary_box(rows), rows, TRACK).resize((220, 260), Image.Resampling.NEAREST)
+        image.paste(zoom, (x, 260))
+        draw.rectangle((x, 260, x + 220, 520), outline=TRACK, width=3)
+        draw.text((x, 545), frame["frame_id"], fill=TEXT, font=_font(21))
+        draw.text((x, 575), _panel_detail("SORT track output", rows), fill=MUTED, font=_font(17))
+        x += 245
+    draw.line((64, 700, 1536, 700), fill=(224, 228, 235), width=2)
+    draw.text((64, 752), "Use this slide when you need more than four frames but still want each target box readable.", fill=TEXT, font=_font(24))
+    image.save(output_dir / "slide_06_track_strip.png")
+
+
+def _make_sort_sweep_slide(output_dir: Path, rows: list[dict[str, str]]) -> None:
+    image = Image.new("RGB", CANVAS, BACKGROUND)
+    draw = ImageDraw.Draw(image)
+    draw.text((64, 44), "SORT Parameter Sweep", fill=TEXT, font=_font(46))
+    draw.text((64, 108), "MOTA changes with association threshold and track confirmation settings on the CPU diagnostic run.", fill=MUTED, font=_font(23))
+    chart = (160, 230, 1380, 690)
+    _draw_bar_chart(
+        draw,
+        [(f"age {r['max_age']}\nhit {r['min_hits']}\niou {r['iou_threshold']}", float(r["mota"])) for r in rows],
+        chart,
+        "MOTA",
+        TRACK,
+    )
+    draw.text((160, 855), "Interpretation: with gt_bbox detections fixed, changes mainly reflect SORT association behavior.", fill=TEXT, font=_font(24))
+    image.save(output_dir / "slide_07_sort_sweep.png")
+
+
+def _make_scale_comparison_slide(output_dir: Path, smoke: dict[str, str], cpu10: dict[str, str]) -> None:
+    image = Image.new("RGB", CANVAS, BACKGROUND)
+    draw = ImageDraw.Draw(image)
+    draw.text((64, 44), "CPU Scale-Up Check", fill=TEXT, font=_font(46))
+    draw.text((64, 108), "The same diagnostic loop was also run on a larger 10-sequence processed set.", fill=MUTED, font=_font(23))
+    values = [
+        ("test frames", float(smoke["num_frames"]), float(cpu10["num_frames"])),
+        ("MOTA", float(smoke["mota"]), float(cpu10["mota"])),
+    ]
+    x0, y0 = 180, 250
+    for idx, (label, smoke_value, cpu_value) in enumerate(values):
+        y = y0 + idx * 240
+        max_value = max(smoke_value, cpu_value, 1.0)
+        draw.text((x0, y), label, fill=TEXT, font=_font(28))
+        _bar_pair(draw, x0 + 260, y + 5, smoke_value, cpu_value, max_value)
+    legend_x = 1160
+    draw.rectangle((legend_x, 250, legend_x + 30, 280), fill=DET)
+    draw.text((legend_x + 45, 245), "smoke", fill=TEXT, font=_font(24))
+    draw.rectangle((legend_x, 295, legend_x + 30, 325), fill=TRACK)
+    draw.text((legend_x + 45, 290), "cpu10", fill=TEXT, font=_font(24))
+    draw.text((180, 780), "Detection metrics remain ideal because the source is gt_bbox.", fill=TEXT, font=_font(22))
+    draw.text((180, 815), "The scale-up proves CPU data conversion and archiving capacity.", fill=TEXT, font=_font(22))
+    image.save(output_dir / "slide_08_scale_comparison.png")
+
+
 def _draw_boxes(image: Image.Image, rows: list[dict[str, str]], color: tuple[int, int, int]) -> None:
     draw = ImageDraw.Draw(image)
     for row in rows:
@@ -215,6 +326,47 @@ def _draw_table(
         y += 70
 
 
+def _draw_bar_chart(
+    draw: ImageDraw.ImageDraw,
+    values: list[tuple[str, float]],
+    box: tuple[int, int, int, int],
+    ylabel: str,
+    color: tuple[int, int, int],
+) -> None:
+    x1, y1, x2, y2 = box
+    draw.line((x1, y2, x2, y2), fill=(170, 178, 190), width=2)
+    draw.line((x1, y1, x1, y2), fill=(170, 178, 190), width=2)
+    max_value = max(value for _, value in values) or 1.0
+    bar_width = int((x2 - x1) / max(1, len(values)) * 0.55)
+    gap = int((x2 - x1) / max(1, len(values)))
+    for index, (label, value) in enumerate(values):
+        cx = x1 + index * gap + gap // 2
+        height = int((y2 - y1 - 40) * value / max_value)
+        draw.rectangle((cx - bar_width // 2, y2 - height, cx + bar_width // 2, y2), fill=color)
+        draw.text((cx - 38, y2 - height - 32), f"{value:.3f}", fill=TEXT, font=_font(18))
+        lines = label.split("\n")
+        for offset, line in enumerate(lines):
+            draw.text((cx - 42, y2 + 12 + offset * 18), line, fill=MUTED, font=_font(14))
+    draw.text((x1 - 72, y1 + 10), ylabel, fill=MUTED, font=_font(20))
+
+
+def _bar_pair(
+    draw: ImageDraw.ImageDraw,
+    x: int,
+    y: int,
+    smoke_value: float,
+    cpu_value: float,
+    max_value: float,
+) -> None:
+    width = 560
+    smoke_w = int(width * smoke_value / max_value)
+    cpu_w = int(width * cpu_value / max_value)
+    draw.rectangle((x, y, x + smoke_w, y + 45), fill=DET)
+    draw.text((x + smoke_w + 15, y + 8), f"{smoke_value:.3g}", fill=TEXT, font=_font(22))
+    draw.rectangle((x, y + 65, x + cpu_w, y + 110), fill=TRACK)
+    draw.text((x + cpu_w + 15, y + 73), f"{cpu_value:.3g}", fill=TEXT, font=_font(22))
+
+
 def _select_showcase_frames(detections: list[dict[str, str]], *, limit: int) -> list[dict[str, str]]:
     ranked = sorted(detections, key=lambda row: (_area(row), row["sequence_id"], row["frame_id"]), reverse=True)
     selected = []
@@ -247,6 +399,23 @@ def _select_tracking_frames(tracks: list[dict[str, str]], *, limit: int) -> list
     if not best_run:
         best_run = sorted(tracks, key=lambda row: _area(row), reverse=True)[:limit]
     window = max((best_run[index : index + limit] for index in range(0, max(1, len(best_run) - limit + 1))), key=lambda rows: max(_area(row) for row in rows))
+    return [{"sequence_id": row["sequence_id"], "frame_id": row["frame_id"]} for row in window]
+
+
+def _extend_track_window(tracks: list[dict[str, str]], frames: list[dict[str, str]], *, limit: int) -> list[dict[str, str]]:
+    if not frames:
+        return []
+    first_rows = _rows_for_frame(tracks, frames[0])
+    if not first_rows:
+        return frames[:limit]
+    track_id = first_rows[0]["track_id"]
+    sequence_id = frames[0]["sequence_id"]
+    same_track = sorted(
+        [row for row in tracks if row["sequence_id"] == sequence_id and row["track_id"] == track_id],
+        key=lambda row: int(row["frame_id"]),
+    )
+    start = int(frames[0]["frame_id"])
+    window = [row for row in same_track if int(row["frame_id"]) >= start][:limit]
     return [{"sequence_id": row["sequence_id"], "frame_id": row["frame_id"]} for row in window]
 
 

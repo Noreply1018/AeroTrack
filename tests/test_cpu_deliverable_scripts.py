@@ -83,6 +83,21 @@ def test_showcase_colorize_ra_returns_rgb_image():
     assert colorized.getpixel((0, 0)) != colorized.getpixel((1, 0))
 
 
+def test_showcase_tracking_frame_selection_uses_same_track_id():
+    make_showcase_slides = _load_script("make_showcase_slides")
+    rows = [
+        {"sequence_id": "s", "frame_id": "000001", "track_id": "a", "x1": "0", "y1": "0", "x2": "2", "y2": "2"},
+        {"sequence_id": "s", "frame_id": "000002", "track_id": "a", "x1": "0", "y1": "0", "x2": "2", "y2": "2"},
+        {"sequence_id": "s", "frame_id": "000003", "track_id": "a", "x1": "0", "y1": "0", "x2": "2", "y2": "2"},
+        {"sequence_id": "s", "frame_id": "000004", "track_id": "a", "x1": "0", "y1": "0", "x2": "2", "y2": "2"},
+        {"sequence_id": "s", "frame_id": "000001", "track_id": "b", "x1": "0", "y1": "0", "x2": "4", "y2": "4"},
+    ]
+
+    frames = make_showcase_slides._select_tracking_frames(rows, limit=4)
+
+    assert [frame["frame_id"] for frame in frames] == ["000001", "000002", "000003", "000004"]
+
+
 def test_sort_sweep_variants_override_base_and_write_csv(tmp_path):
     run_sort_sweep = _load_script("run_sort_sweep")
     variants = run_sort_sweep._variants({"max_age": 9, "min_hits": 9, "iou_threshold": 0.9, "min_confidence": 0.25})
