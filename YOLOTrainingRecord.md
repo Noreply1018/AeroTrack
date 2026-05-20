@@ -128,54 +128,62 @@ uv run python -c "import ultralytics; print(ultralytics.__version__)"
 
 | 项目 | 值 |
 |---|---|
-| 服务器供应商 | 待填写 |
-| 服务器实例规格 | 待填写 |
-| GPU 型号 | 待填写 |
-| GPU 数量 | 待填写 |
-| 显存 | 待填写 |
-| CPU | 待填写 |
-| 内存 | 待填写 |
-| 磁盘 | 待填写 |
-| 操作系统 | 待填写 |
-| Python 版本 | 待填写 |
-| PyTorch 版本 | 待填写 |
-| CUDA 版本 | 待填写 |
-| Ultralytics 版本 | 待填写 |
-| AeroTrack Git commit | 待填写 |
+| 服务器供应商 | 按实际租赁实例填写 |
+| 服务器实例规格 | 推荐单卡 NVIDIA RTX 4090 / L40S / A5000 及以上 |
+| GPU 型号 | 按 `nvidia-smi` 实测填写 |
+| GPU 数量 | 推荐 1 |
+| 显存 | 推荐 >= 16 GiB，优先 24 GiB |
+| CPU | 推荐 >= 8 vCPU |
+| 内存 | 推荐 >= 32 GiB |
+| 磁盘 | 推荐 >= 100 GiB SSD |
+| 操作系统 | 推荐 Ubuntu 22.04 LTS |
+| Python 版本 | 推荐 3.11 |
+| PyTorch 版本 | 按 `uv run python -c "import torch; print(torch.__version__)"` 实测填写 |
+| CUDA 版本 | 按 `nvidia-smi` / PyTorch 实测填写 |
+| Ultralytics 版本 | 按 `uv run python -c "import ultralytics; print(ultralytics.__version__)"` 实测填写 |
+| AeroTrack Git commit | 服务器执行时按 `git rev-parse --short HEAD` 实测填写 |
 
 ## 8. YOLO 训练配置记录
 
-每次训练必须记录：
+每次训练必须记录。当前 `configs/detector/yolo_train.yaml` 是 Stage1 保留模板，默认仍指向 smoke 数据和 `weights/yolo_pretrained.pt`，且关闭自动下载。服务器首轮训练建议按下表作为覆盖配置执行：先生成 Ultralytics 数据配置，再把 YOLOv8n 预训练权重放到 `weights/yolo_pretrained.pt`，并显式设置 `project=runs`、`name=carrada_ra_yolov8n_server30_baseline`。
+
+生成服务器可用数据配置：
+
+```bash
+uv run python scripts/prepare_ultralytics_data.py \
+  --prepared-root data/processed/carrada_ra_server30 \
+  --container-path /workspace/data/processed/carrada_ra_server30
+```
 
 | 字段 | 值 |
 |---|---|
-| 实验名称 | 待填写 |
-| 训练日期 | 待填写 |
+| 实验名称 | `carrada_ra_yolov8n_server30_baseline` |
+| 训练日期 | 2026-05-20 计划配置，服务器执行后按实际日期更新 |
 | YOLO 实现 | Ultralytics |
-| YOLO 模型版本 | 待填写，例如 YOLOv8n、YOLOv8s、YOLOv11n |
-| 初始权重 | 待填写 |
-| 数据配置 | `data/processed/carrada_ra_server30` |
+| YOLO 模型版本 | YOLOv8n |
+| 初始权重 | `weights/yolo_pretrained.pt`，内容建议使用 YOLOv8n 预训练权重 |
+| 数据配置 | `data/processed/carrada_ra_server30/ultralytics/yolo_data.yaml` |
 | 输入表示 | CARRADA Range-Angle PNG |
 | 类别数 | 3 |
 | 类别名称 | pedestrian、cyclist、car |
-| 训练 sequence 数 | 待填写 |
-| 验证 sequence 数 | 待填写 |
-| 测试 sequence 数 | 待填写 |
-| 训练图片数 | 待填写 |
-| 验证图片数 | 待填写 |
-| 测试图片数 | 待填写 |
-| 标注框总数 | 待填写 |
-| 图像尺寸 `imgsz` | 待填写 |
-| epoch | 待填写 |
-| batch | 待填写 |
-| optimizer | 待填写 |
-| learning rate | 待填写 |
-| conf 阈值 | 待填写 |
-| NMS IoU 阈值 | 待填写 |
-| 训练耗时 | 待填写 |
-| 最佳权重 | 待填写 |
-| 最终权重 | 待填写 |
-| 备注 | 待填写 |
+| 训练 sequence 数 | 18 |
+| 验证 sequence 数 | 6 |
+| 测试 sequence 数 | 6 |
+| 训练图片数 | 8088 |
+| 验证图片数 | 2448 |
+| 测试图片数 | 2130 |
+| 标注框总数 | 8750 |
+| 图像尺寸 `imgsz` | 640 |
+| epoch | 50 |
+| batch | 8，若显存 >= 24 GiB 可尝试 16 |
+| optimizer | AdamW |
+| learning rate | 0.001 |
+| conf 阈值 | 0.25 |
+| NMS IoU 阈值 | 0.70 |
+| 训练耗时 | 服务器训练后填写 |
+| 最佳权重 | `runs/carrada_ra_yolov8n_server30_baseline/weights/best.pt` |
+| 最终权重 | `runs/carrada_ra_yolov8n_server30_baseline/weights/last.pt` |
+| 备注 | 首轮推荐使用 YOLOv8n 做轻量 baseline，优先验证标签质量、训练链路和后处理接入；稳定后再扩展到 YOLOv8s/YOLOv11n 或全量数据。 |
 
 ## 9. 工程诊断结果表
 
@@ -189,11 +197,12 @@ uv run python -c "import ultralytics; print(ultralytics.__version__)"
 
 ## 10. 真实 YOLO 训练结果表
 
-本表只填写真实 YOLO 训练或推理结果。服务器训练完成前，所有模型指标保持待填写。
+本表只填写真实 YOLO 训练或推理结果。服务器训练完成前，正式 server30 baseline 指标保持待填写。本地 `cpu10` 短训结果只用于展示链路和产物，不作为最终精度 baseline。
 
 | 实验名 | 模型版本 | 初始权重 | 数据集 | train/val/test 图片数 | 标注框数 | imgsz | epoch | batch | precision | recall | F1 | mAP50 | mAP50-95 | SORT MOTA | IDF1 状态 | 训练耗时 | 备注 |
 |---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|---|
-| 待填写 | 待填写 | 待填写 | carrada_ra_server30 | 8088/2448/2130 | 8750 | 待填写 | 待填写 | 待填写 | 待填写 | 待填写 | 待填写 | 待填写 | 待填写 | 待填写 | unavailable | 待填写 | 服务器真实 YOLO 训练结果 |
+| carrada_ra_cpu10_yolov8n_cpu | YOLOv8n | `yolov8n.pt` | carrada_ra_cpu10 | 4495/704/528 | 2425 | 256 | 3 | 4 | 0.00170 | 0.08257 | 低指标未单独汇总 | 0.00122 | 0.00019 | 未接入 SORT | unavailable | 0.276 hours | 本地 CPU 短训已完成，产物见 `runs/yolo_local_demo/carrada_ra_cpu10_yolov8n_cpu/`，展示报告见 `docs/YOLOLocalDemoReport.md`；仅用于证明 YOLO 训练/验证/可视化链路可跑通 |
+| carrada_ra_yolov8n_server30_baseline | YOLOv8n | `weights/yolo_pretrained.pt` | carrada_ra_server30 | 8088/2448/2130 | 8750 | 640 | 50 | 8 | 训练后填写 | 训练后填写 | 训练后填写 | 训练后填写 | 训练后填写 | 训练后填写 | unavailable | 训练后填写 | 首轮真实 YOLO baseline 推荐配置；使用 `data/processed/carrada_ra_server30/ultralytics/yolo_data.yaml`，并显式设置 `project=runs`、`name=carrada_ra_yolov8n_server30_baseline`；指标必须来自服务器训练/验证结果，不可用 GT 诊断指标替代 |
 
 ## 11. 服务器产物回传清单
 
