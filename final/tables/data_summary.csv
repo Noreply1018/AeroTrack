@@ -1,0 +1,2 @@
+annotations,classes,dataset,sequences,test_images,total_images,train_images,val_images
+2425,"pedestrian, cyclist, car",carrada_ra_cpu10,10,528,5727,4495,704

@@ -1,0 +1,4 @@
+detection_source,experiment_name,f1,idf1_status,map50,mota,notes,num_frames,num_sequences,precision,recall,scale,split
+gt_bbox,carrada_ra_gtbbox_sort_smoke,1.000000,unavailable,1.000000,0.520000,ID metrics unavailable in Stage1 smoke.,264,2,1.000000,1.000000,smoke,test
+gt_bbox,carrada_ra_gtbbox_sort_cpu10,1.000000,unavailable,1.000000,0.462810,ID metrics unavailable in Stage1 smoke.,528,10,1.000000,1.000000,cpu10,test
+gt_bbox,carrada_ra_gtbbox_sort_server30,1.000000,unavailable,1.000000,0.411548,ID metrics unavailable in Stage1 smoke.,2130,30,1.000000,1.000000,server30,test

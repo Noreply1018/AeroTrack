@@ -1,0 +1,548 @@
+{
+  "summary": {
+    "status": "pass",
+    "annotations_path": "data/processed/carrada_ra_cpu10/annotations.csv",
+    "num_annotation_rows": 2425,
+    "num_sequences": 10,
+    "num_objects": 28,
+    "objects_with_class_id_changes": 0,
+    "objects_with_raw_label_changes": 0,
+    "objects_with_frame_gaps": 0,
+    "interpretation": "No class/raw-label changes were found for the same sequence_id/object_id in the prepared annotations. Frame gaps are reported as visibility gaps, not identity instability by themselves."
+  },
+  "issues": [],
+  "objects": [
+    {
+      "sequence_id": "2019-09-16-12-52-12",
+      "object_id": "000004",
+      "frame_count": 54,
+      "first_frame": "000163",
+      "last_frame": "000216",
+      "class_ids": {
+        "2": 54
+      },
+      "raw_labels": {
+        "3": 54
+      },
+      "bbox_sources": {
+        "range_angle.box": 54
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-12-52-12",
+      "object_id": "000025",
+      "frame_count": 92,
+      "first_frame": "000491",
+      "last_frame": "000582",
+      "class_ids": {
+        "2": 92
+      },
+      "raw_labels": {
+        "3": 92
+      },
+      "bbox_sources": {
+        "range_angle.box": 92
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-12-52-12",
+      "object_id": "000043",
+      "frame_count": 140,
+      "first_frame": "000863",
+      "last_frame": "001002",
+      "class_ids": {
+        "2": 140
+      },
+      "raw_labels": {
+        "3": 140
+      },
+      "bbox_sources": {
+        "range_angle.box": 140
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-12-55-51",
+      "object_id": "000054",
+      "frame_count": 52,
+      "first_frame": "000046",
+      "last_frame": "000097",
+      "class_ids": {
+        "2": 52
+      },
+      "raw_labels": {
+        "3": 52
+      },
+      "bbox_sources": {
+        "range_angle.box": 52
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-12-55-51",
+      "object_id": "000067",
+      "frame_count": 91,
+      "first_frame": "000216",
+      "last_frame": "000306",
+      "class_ids": {
+        "2": 91
+      },
+      "raw_labels": {
+        "3": 91
+      },
+      "bbox_sources": {
+        "range_angle.box": 91
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-12-55-51",
+      "object_id": "000076",
+      "frame_count": 130,
+      "first_frame": "000411",
+      "last_frame": "000540",
+      "class_ids": {
+        "2": 130
+      },
+      "raw_labels": {
+        "3": 130
+      },
+      "bbox_sources": {
+        "range_angle.box": 130
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-12-58-42",
+      "object_id": "000109",
+      "frame_count": 61,
+      "first_frame": "000135",
+      "last_frame": "000195",
+      "class_ids": {
+        "2": 61
+      },
+      "raw_labels": {
+        "3": 61
+      },
+      "bbox_sources": {
+        "range_angle.box": 61
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-12-58-42",
+      "object_id": "000153",
+      "frame_count": 95,
+      "first_frame": "000405",
+      "last_frame": "000499",
+      "class_ids": {
+        "2": 95
+      },
+      "raw_labels": {
+        "3": 95
+      },
+      "bbox_sources": {
+        "range_angle.box": 95
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-12-58-42",
+      "object_id": "000187",
+      "frame_count": 148,
+      "first_frame": "000755",
+      "last_frame": "000902",
+      "class_ids": {
+        "2": 148
+      },
+      "raw_labels": {
+        "3": 148
+      },
+      "bbox_sources": {
+        "range_angle.box": 148
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-03-38",
+      "object_id": "000210",
+      "frame_count": 83,
+      "first_frame": "000080",
+      "last_frame": "000162",
+      "class_ids": {
+        "2": 83
+      },
+      "raw_labels": {
+        "3": 83
+      },
+      "bbox_sources": {
+        "range_angle.box": 83
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-03-38",
+      "object_id": "000238",
+      "frame_count": 93,
+      "first_frame": "000323",
+      "last_frame": "000415",
+      "class_ids": {
+        "2": 93
+      },
+      "raw_labels": {
+        "3": 93
+      },
+      "bbox_sources": {
+        "range_angle.box": 93
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-03-38",
+      "object_id": "000260",
+      "frame_count": 151,
+      "first_frame": "000550",
+      "last_frame": "000700",
+      "class_ids": {
+        "2": 151
+      },
+      "raw_labels": {
+        "3": 151
+      },
+      "bbox_sources": {
+        "range_angle.box": 151
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-06-41",
+      "object_id": "000282",
+      "frame_count": 52,
+      "first_frame": "000024",
+      "last_frame": "000075",
+      "class_ids": {
+        "2": 52
+      },
+      "raw_labels": {
+        "3": 52
+      },
+      "bbox_sources": {
+        "range_angle.box": 52
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-06-41",
+      "object_id": "000321",
+      "frame_count": 71,
+      "first_frame": "000380",
+      "last_frame": "000450",
+      "class_ids": {
+        "2": 71
+      },
+      "raw_labels": {
+        "3": 71
+      },
+      "bbox_sources": {
+        "range_angle.box": 71
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-06-41",
+      "object_id": "000347",
+      "frame_count": 95,
+      "first_frame": "000596",
+      "last_frame": "000690",
+      "class_ids": {
+        "2": 95
+      },
+      "raw_labels": {
+        "3": 95
+      },
+      "bbox_sources": {
+        "range_angle.box": 95
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-11-12",
+      "object_id": "000381",
+      "frame_count": 63,
+      "first_frame": "000017",
+      "last_frame": "000079",
+      "class_ids": {
+        "2": 63
+      },
+      "raw_labels": {
+        "3": 63
+      },
+      "bbox_sources": {
+        "range_angle.box": 63
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-11-12",
+      "object_id": "000401",
+      "frame_count": 69,
+      "first_frame": "000135",
+      "last_frame": "000203",
+      "class_ids": {
+        "2": 69
+      },
+      "raw_labels": {
+        "3": 69
+      },
+      "bbox_sources": {
+        "range_angle.box": 69
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-11-12",
+      "object_id": "000416",
+      "frame_count": 87,
+      "first_frame": "000245",
+      "last_frame": "000331",
+      "class_ids": {
+        "2": 87
+      },
+      "raw_labels": {
+        "3": 87
+      },
+      "bbox_sources": {
+        "range_angle.box": 87
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-13-01",
+      "object_id": "000448",
+      "frame_count": 43,
+      "first_frame": "000037",
+      "last_frame": "000079",
+      "class_ids": {
+        "2": 43
+      },
+      "raw_labels": {
+        "3": 43
+      },
+      "bbox_sources": {
+        "range_angle.box": 43
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-13-01",
+      "object_id": "000456",
+      "frame_count": 48,
+      "first_frame": "000106",
+      "last_frame": "000153",
+      "class_ids": {
+        "2": 48
+      },
+      "raw_labels": {
+        "3": 48
+      },
+      "bbox_sources": {
+        "range_angle.box": 48
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-13-01",
+      "object_id": "000493",
+      "frame_count": 59,
+      "first_frame": "000185",
+      "last_frame": "000243",
+      "class_ids": {
+        "2": 59
+      },
+      "raw_labels": {
+        "3": 59
+      },
+      "bbox_sources": {
+        "range_angle.box": 59
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-14-29",
+      "object_id": "000526",
+      "frame_count": 41,
+      "first_frame": "000070",
+      "last_frame": "000110",
+      "class_ids": {
+        "2": 41
+      },
+      "raw_labels": {
+        "3": 41
+      },
+      "bbox_sources": {
+        "range_angle.box": 41
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-14-29",
+      "object_id": "000545",
+      "frame_count": 67,
+      "first_frame": "000183",
+      "last_frame": "000249",
+      "class_ids": {
+        "2": 67
+      },
+      "raw_labels": {
+        "3": 67
+      },
+      "bbox_sources": {
+        "range_angle.box": 67
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-14-29",
+      "object_id": "000594",
+      "frame_count": 100,
+      "first_frame": "000310",
+      "last_frame": "000409",
+      "class_ids": {
+        "2": 100
+      },
+      "raw_labels": {
+        "3": 100
+      },
+      "bbox_sources": {
+        "range_angle.box": 100
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-18-33",
+      "object_id": "000652",
+      "frame_count": 152,
+      "first_frame": "000038",
+      "last_frame": "000189",
+      "class_ids": {
+        "2": 152
+      },
+      "raw_labels": {
+        "3": 152
+      },
+      "bbox_sources": {
+        "range_angle.box": 152
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-18-33",
+      "object_id": "000660",
+      "frame_count": 61,
+      "first_frame": "000090",
+      "last_frame": "000150",
+      "class_ids": {
+        "2": 61
+      },
+      "raw_labels": {
+        "3": 61
+      },
+      "bbox_sources": {
+        "range_angle.box": 61
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-20-20",
+      "object_id": "000670",
+      "frame_count": 55,
+      "first_frame": "000055",
+      "last_frame": "000109",
+      "class_ids": {
+        "2": 55
+      },
+      "raw_labels": {
+        "3": 55
+      },
+      "bbox_sources": {
+        "range_angle.box": 55
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    },
+    {
+      "sequence_id": "2019-09-16-13-20-20",
+      "object_id": "000673",
+      "frame_count": 172,
+      "first_frame": "000057",
+      "last_frame": "000228",
+      "class_ids": {
+        "2": 172
+      },
+      "raw_labels": {
+        "3": 172
+      },
+      "bbox_sources": {
+        "range_angle.box": 172
+      },
+      "continuous": true,
+      "gap_count": 0,
+      "gaps": []
+    }
+  ]
+}

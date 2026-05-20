@@ -1,0 +1,2 @@
+experiment_name,detection_source,split,num_sequences,num_frames,precision,recall,f1,map50,mota,idf1_status,notes
+carrada_ra_gtbbox_sort_smoke,gt_bbox,test,2,264,1.000000,1.000000,1.000000,1.000000,0.520000,unavailable,ID metrics unavailable in Stage1 smoke.

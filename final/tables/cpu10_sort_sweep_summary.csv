@@ -1,0 +1,7 @@
+experiment_name,max_age,min_hits,iou_threshold,num_tracks,num_track_rows,mota,tp,fp,fn,idf1_status
+sort_age1_hits1_iou0p1,1,1,0.10,732,2425,0.699725,363,0,0,unavailable
+sort_age1_hits1_iou0p3,1,1,0.30,1232,2425,0.468320,363,0,0,unavailable
+sort_age3_hits1_iou0p3,3,1,0.30,1105,2425,0.462810,363,0,0,unavailable
+sort_age5_hits1_iou0p3,5,1,0.30,1085,2425,0.460055,363,0,0,unavailable
+sort_age3_hits2_iou0p3,3,2,0.30,481,1320,0.292011,181,0,182,unavailable
+sort_age3_hits1_iou0p5,3,1,0.50,1607,2425,0.258953,363,0,0,unavailable
