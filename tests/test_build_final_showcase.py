@@ -77,7 +77,8 @@ def _make_fixture(tmp_path: Path):
         "train_batch2.jpg",
     ]:
         _png(yolo_run / name)
-    _png(yolo_pred / "000001.jpg")
+    for name in ["000001.jpg", "000002.jpg", "000003.jpg"]:
+        _png(yolo_pred / name)
 
     summary_row = {
         "experiment_name": "demo",
@@ -173,6 +174,7 @@ def test_build_final_showcase_writes_reports_and_manifest(tmp_path):
     assert (output / "project_summary.md").read_text(encoding="utf-8").find("AeroTrack") >= 0
     assert (output / "reports" / "yolo_training_report.md").exists()
     assert (output / "figures" / "yolo_predictions" / "prediction_01_000001.jpg").exists()
+    assert (output / "figures" / "yolo_predictions" / "prediction_03_000003.jpg").exists()
     manifest = (output / "tables" / "artifact_manifest.csv").read_text(encoding="utf-8")
     assert "missing" not in manifest
     assert "copied" in manifest
@@ -207,6 +209,32 @@ def test_build_final_showcase_fails_when_predictions_missing(tmp_path):
         raise AssertionError("expected FileNotFoundError for empty prediction directory")
 
 
+def test_build_final_showcase_fails_when_diagnostic_summary_missing(tmp_path):
+    build_final_showcase = _load_script("build_final_showcase")
+    fixture = _make_fixture(tmp_path)
+    (fixture["server30"] / "metrics" / "summary.csv").unlink()
+
+    try:
+        _build(build_final_showcase, fixture)
+    except FileNotFoundError as exc:
+        assert "server30 diagnostic summary" in str(exc)
+    else:
+        raise AssertionError("expected FileNotFoundError for missing diagnostic summary")
+
+
+def test_build_final_showcase_fails_when_sample_index_missing(tmp_path):
+    build_final_showcase = _load_script("build_final_showcase")
+    fixture = _make_fixture(tmp_path)
+    (fixture["data"] / "sample_index.csv").unlink()
+
+    try:
+        _build(build_final_showcase, fixture)
+    except FileNotFoundError as exc:
+        assert "sample index" in str(exc)
+    else:
+        raise AssertionError("expected FileNotFoundError for missing sample index")
+
+
 def test_build_final_showcase_failure_cleans_final_dir(tmp_path):
     build_final_showcase = _load_script("build_final_showcase")
     fixture = _make_fixture(tmp_path)
@@ -230,5 +258,5 @@ def test_reproducible_commands_use_absolute_model_path(tmp_path):
 
     commands = (fixture["output"] / "commands" / "reproducible_commands.md").read_text(encoding="utf-8")
     assert "model=runs/" not in commands
-    assert "model=/home/lh/projects/AeroTrack" in commands
-    assert "source=/home/lh/projects/AeroTrack/runs/yolo_local_demo/showcase_sources.txt" in commands
+    assert f"model={fixture['yolo_run']}/weights/best.pt" in commands
+    assert f"source={fixture['yolo_pred'].parent / 'carrada_ra_cpu10_showcase_sources.txt'}" in commands

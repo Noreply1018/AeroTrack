@@ -74,8 +74,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     output_dir = Path(args.output_dir)
-    yolo_run_dir = Path(args.yolo_run_dir)
-    yolo_pred_dir = Path(args.yolo_pred_dir)
+    yolo_run_dir = Path(args.yolo_run_dir).resolve()
+    yolo_pred_dir = Path(args.yolo_pred_dir).resolve()
 
     artifacts = build_final_showcase(
         output_dir=output_dir,
@@ -102,25 +102,17 @@ def build_final_showcase(
     cpu10_data_dir: Path,
 ) -> list[CopiedArtifact]:
     yolo_metrics = _read_yolo_metrics(yolo_run_dir / "results.csv")
-    diagnostic_rows = _read_diagnostic_summaries(
-        {
-            "smoke": smoke_run_dir / "metrics" / "summary.csv",
-            "cpu10": cpu10_run_dir / "metrics" / "summary.csv",
-            "server30": server30_run_dir / "metrics" / "summary.csv",
-        }
-    )
-    sort_sweep_rows = _read_csv(cpu10_run_dir / "analysis" / "sort_sweep" / "sort_sweep_summary.csv")
+    diagnostic_summary_paths = {
+        "smoke": smoke_run_dir / "metrics" / "summary.csv",
+        "cpu10": cpu10_run_dir / "metrics" / "summary.csv",
+        "server30": server30_run_dir / "metrics" / "summary.csv",
+    }
+    diagnostic_rows = _read_diagnostic_summaries(diagnostic_summary_paths)
+    sort_sweep_rows = _read_required_csv("sort sweep summary", cpu10_run_dir / "analysis" / "sort_sweep" / "sort_sweep_summary.csv")
     data_summary = _data_summary(cpu10_data_dir)
     _require_non_empty("yolo metrics", yolo_metrics, yolo_run_dir / "results.csv")
-    _require_non_empty(
-        "diagnostic summaries",
-        diagnostic_rows,
-        smoke_run_dir / "metrics" / "summary.csv",
-        cpu10_run_dir / "metrics" / "summary.csv",
-        server30_run_dir / "metrics" / "summary.csv",
-    )
-    _require_non_empty("sort sweep summary", sort_sweep_rows, cpu10_run_dir / "analysis" / "sort_sweep" / "sort_sweep_summary.csv")
-    _require_non_empty("data summary", [data_summary], cpu10_data_dir / "sample_index.csv", cpu10_data_dir / "annotations.csv")
+    _require_non_empty("data conversion checks", list((cpu10_data_dir / "visual_checks" / "gt").glob("*.png")), cpu10_data_dir / "visual_checks" / "gt")
+    _require_non_empty("yolo predictions", list(yolo_pred_dir.glob("*.jpg")), yolo_pred_dir)
 
     with tempfile.TemporaryDirectory(prefix="aerotrack_final_", dir=output_dir.parent) as tmp_dir:
         staging_dir = Path(tmp_dir)
@@ -136,7 +128,6 @@ def build_final_showcase(
         _write_csv(staging_dir / "tables" / "diagnostic_experiment_summary.csv", diagnostic_rows)
         _write_csv(staging_dir / "tables" / "sort_sweep_summary.csv", sort_sweep_rows)
         _write_csv(staging_dir / "tables" / "data_summary.csv", [data_summary])
-        _write_artifact_manifest(staging_dir / "tables" / "artifact_manifest.csv", artifacts)
 
         _write_readme(staging_dir, yolo_run_dir, yolo_pred_dir, yolo_metrics, diagnostic_rows, data_summary)
         _write_project_summary(staging_dir, yolo_metrics, diagnostic_rows, data_summary)
@@ -145,8 +136,8 @@ def build_final_showcase(
         _write_commands(staging_dir, yolo_run_dir, yolo_pred_dir)
 
         final_artifacts = _retarget_artifacts(artifacts, staging_dir, output_dir)
+        _write_artifact_manifest(staging_dir / "tables" / "artifact_manifest.csv", final_artifacts)
         _replace_directory(output_dir, staging_dir)
-        _write_artifact_manifest(output_dir / "tables" / "artifact_manifest.csv", final_artifacts)
         return final_artifacts
 
 
@@ -211,7 +202,7 @@ def _copy_yolo_materials(yolo_run_dir: Path, yolo_pred_dir: Path, output_dir: Pa
 
     prediction_images = sorted(yolo_pred_dir.glob("*.jpg"))
     _require_non_empty("yolo predictions", prediction_images, yolo_pred_dir)
-    for index, source in enumerate(prediction_images[:18], start=1):
+    for index, source in enumerate(prediction_images, start=1):
         target = output_dir / "figures" / "yolo_predictions" / f"prediction_{index:02d}_{source.name}"
         artifacts.append(_copy_file("yolo_predictions", "YOLO 预测示例", source, target))
     return artifacts
@@ -264,10 +255,16 @@ def _read_yolo_metrics(results_csv: Path) -> list[dict[str, str]]:
 def _read_diagnostic_summaries(paths: dict[str, Path]) -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
     for scale, path in paths.items():
-        for row in _read_csv(path):
+        for row in _read_required_csv(f"{scale} diagnostic summary", path):
             item = {key.strip(): value.strip() for key, value in row.items()}
             item["scale"] = scale
             rows.append(item)
+    return rows
+
+
+def _read_required_csv(label: str, path: Path) -> list[dict[str, str]]:
+    rows = _read_csv(path)
+    _require_non_empty(label, rows, path)
     return rows
 
 
@@ -309,8 +306,8 @@ def _write_artifact_manifest(path: Path, artifacts: list[CopiedArtifact]) -> Non
 
 
 def _data_summary(cpu10_data_dir: Path) -> dict[str, str]:
-    sample_rows = _read_csv(cpu10_data_dir / "sample_index.csv")
-    annotation_rows = _read_csv(cpu10_data_dir / "annotations.csv")
+    sample_rows = _read_required_csv("sample index", cpu10_data_dir / "sample_index.csv")
+    annotation_rows = _read_required_csv("annotations", cpu10_data_dir / "annotations.csv")
     split_counts: dict[str, int] = {}
     for row in sample_rows:
         split = row.get("split", "unknown")
@@ -537,6 +534,7 @@ SORT 消融可用于说明跟踪结果受关联阈值和轨迹确认策略影响
 
 
 def _write_commands(output_dir: Path, yolo_run_dir: Path, yolo_pred_dir: Path) -> None:
+    source_list = yolo_pred_dir.parent / "carrada_ra_cpu10_showcase_sources.txt"
     content = f"""# 可复现实验命令
 
 ## 生成 Ultralytics 数据配置
@@ -558,15 +556,26 @@ uv run --extra yolo yolo detect train \\
   name=carrada_ra_cpu10_yolov8n_e30_cpu exist_ok=True
 ```
 
+## 继续训练
+
+```bash
+uv run --extra yolo yolo detect train \\
+  model=/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/weights/best.pt \\
+  data=/home/lh/projects/AeroTrack/data/processed/carrada_ra_cpu10/ultralytics/yolo_data.yaml \\
+  imgsz=256 epochs=60 batch=4 device=cpu \\
+  project=/home/lh/projects/AeroTrack/runs/yolo_final_demo \\
+  name=carrada_ra_cpu10_yolov8n_e60_cpu exist_ok=True
+```
+
 ## YOLO 展示预测
 
 ```bash
 uv run --extra yolo yolo detect predict \\
-  model=/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/weights/best.pt \\
-  source=/home/lh/projects/AeroTrack/runs/yolo_local_demo/showcase_sources.txt \\
+  model={yolo_run_dir}/weights/best.pt \\
+  source={source_list} \\
   imgsz=256 conf=0.001 save=True save_txt=True save_conf=True device=cpu \\
-  project=/home/lh/projects/AeroTrack/runs/yolo_final_demo \\
-  name=carrada_ra_cpu10_showcase_pred exist_ok=True
+  project={yolo_pred_dir.parent} \\
+  name={yolo_pred_dir.name} exist_ok=True
 ```
 
 ## 生成 final 展示包

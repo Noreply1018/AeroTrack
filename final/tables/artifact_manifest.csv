@@ -36,40 +36,46 @@ cpu10_summary.csv,diagnostic_pipeline,runs/carrada_ra_gtbbox_sort_cpu10/metrics/
 server30_summary.csv,diagnostic_pipeline,runs/carrada_ra_gtbbox_sort_server30/metrics/summary.csv,copied,final/tables/server30_summary.csv
 cpu10_sort_sweep_summary.csv,diagnostic_pipeline,runs/carrada_ra_gtbbox_sort_cpu10/analysis/sort_sweep/sort_sweep_summary.csv,copied,final/tables/cpu10_sort_sweep_summary.csv
 cpu10_identity_stability_audit.json,diagnostic_pipeline,runs/carrada_ra_gtbbox_sort_cpu10/analysis/identity_stability_audit.json,copied,final/tables/cpu10_identity_stability_audit.json
-results.png,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/results.png,copied,final/figures/yolo_training/results.png
-BoxPR_curve.png,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/BoxPR_curve.png,copied,final/figures/yolo_training/BoxPR_curve.png
-BoxF1_curve.png,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/BoxF1_curve.png,copied,final/figures/yolo_training/BoxF1_curve.png
-BoxP_curve.png,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/BoxP_curve.png,copied,final/figures/yolo_training/BoxP_curve.png
-BoxR_curve.png,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/BoxR_curve.png,copied,final/figures/yolo_training/BoxR_curve.png
-confusion_matrix.png,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/confusion_matrix.png,copied,final/figures/yolo_training/confusion_matrix.png
-confusion_matrix_normalized.png,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/confusion_matrix_normalized.png,copied,final/figures/yolo_training/confusion_matrix_normalized.png
-labels.jpg,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/labels.jpg,copied,final/figures/yolo_training/labels.jpg
-val_batch0_labels.jpg,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/val_batch0_labels.jpg,copied,final/figures/yolo_training/val_batch0_labels.jpg
-val_batch0_pred.jpg,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/val_batch0_pred.jpg,copied,final/figures/yolo_training/val_batch0_pred.jpg
-val_batch1_labels.jpg,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/val_batch1_labels.jpg,copied,final/figures/yolo_training/val_batch1_labels.jpg
-val_batch1_pred.jpg,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/val_batch1_pred.jpg,copied,final/figures/yolo_training/val_batch1_pred.jpg
-val_batch2_labels.jpg,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/val_batch2_labels.jpg,copied,final/figures/yolo_training/val_batch2_labels.jpg
-val_batch2_pred.jpg,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/val_batch2_pred.jpg,copied,final/figures/yolo_training/val_batch2_pred.jpg
-train_batch0.jpg,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/train_batch0.jpg,copied,final/figures/yolo_training/train_batch0.jpg
-train_batch1.jpg,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/train_batch1.jpg,copied,final/figures/yolo_training/train_batch1.jpg
-train_batch2.jpg,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/train_batch2.jpg,copied,final/figures/yolo_training/train_batch2.jpg
-results.csv,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/results.csv,copied,final/tables/yolo_results.csv
-args.yaml,yolo_training,runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/args.yaml,copied,final/tables/yolo_args.yaml
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000024.jpg,copied,final/figures/yolo_predictions/prediction_01_000024.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000025.jpg,copied,final/figures/yolo_predictions/prediction_02_000025.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000026.jpg,copied,final/figures/yolo_predictions/prediction_03_000026.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000027.jpg,copied,final/figures/yolo_predictions/prediction_04_000027.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000028.jpg,copied,final/figures/yolo_predictions/prediction_05_000028.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000029.jpg,copied,final/figures/yolo_predictions/prediction_06_000029.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000030.jpg,copied,final/figures/yolo_predictions/prediction_07_000030.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000031.jpg,copied,final/figures/yolo_predictions/prediction_08_000031.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000032.jpg,copied,final/figures/yolo_predictions/prediction_09_000032.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000033.jpg,copied,final/figures/yolo_predictions/prediction_10_000033.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000034.jpg,copied,final/figures/yolo_predictions/prediction_11_000034.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000035.jpg,copied,final/figures/yolo_predictions/prediction_12_000035.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000036.jpg,copied,final/figures/yolo_predictions/prediction_13_000036.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000037.jpg,copied,final/figures/yolo_predictions/prediction_14_000037.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000038.jpg,copied,final/figures/yolo_predictions/prediction_15_000038.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000039.jpg,copied,final/figures/yolo_predictions/prediction_16_000039.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000040.jpg,copied,final/figures/yolo_predictions/prediction_17_000040.jpg
-YOLO 预测示例,yolo_predictions,runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000041.jpg,copied,final/figures/yolo_predictions/prediction_18_000041.jpg
+results.png,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/results.png,copied,final/figures/yolo_training/results.png
+BoxPR_curve.png,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/BoxPR_curve.png,copied,final/figures/yolo_training/BoxPR_curve.png
+BoxF1_curve.png,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/BoxF1_curve.png,copied,final/figures/yolo_training/BoxF1_curve.png
+BoxP_curve.png,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/BoxP_curve.png,copied,final/figures/yolo_training/BoxP_curve.png
+BoxR_curve.png,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/BoxR_curve.png,copied,final/figures/yolo_training/BoxR_curve.png
+confusion_matrix.png,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/confusion_matrix.png,copied,final/figures/yolo_training/confusion_matrix.png
+confusion_matrix_normalized.png,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/confusion_matrix_normalized.png,copied,final/figures/yolo_training/confusion_matrix_normalized.png
+labels.jpg,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/labels.jpg,copied,final/figures/yolo_training/labels.jpg
+val_batch0_labels.jpg,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/val_batch0_labels.jpg,copied,final/figures/yolo_training/val_batch0_labels.jpg
+val_batch0_pred.jpg,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/val_batch0_pred.jpg,copied,final/figures/yolo_training/val_batch0_pred.jpg
+val_batch1_labels.jpg,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/val_batch1_labels.jpg,copied,final/figures/yolo_training/val_batch1_labels.jpg
+val_batch1_pred.jpg,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/val_batch1_pred.jpg,copied,final/figures/yolo_training/val_batch1_pred.jpg
+val_batch2_labels.jpg,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/val_batch2_labels.jpg,copied,final/figures/yolo_training/val_batch2_labels.jpg
+val_batch2_pred.jpg,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/val_batch2_pred.jpg,copied,final/figures/yolo_training/val_batch2_pred.jpg
+train_batch0.jpg,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/train_batch0.jpg,copied,final/figures/yolo_training/train_batch0.jpg
+train_batch1.jpg,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/train_batch1.jpg,copied,final/figures/yolo_training/train_batch1.jpg
+train_batch2.jpg,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/train_batch2.jpg,copied,final/figures/yolo_training/train_batch2.jpg
+results.csv,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/results.csv,copied,final/tables/yolo_results.csv
+args.yaml,yolo_training,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu/args.yaml,copied,final/tables/yolo_args.yaml
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000024.jpg,copied,final/figures/yolo_predictions/prediction_01_000024.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000025.jpg,copied,final/figures/yolo_predictions/prediction_02_000025.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000026.jpg,copied,final/figures/yolo_predictions/prediction_03_000026.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000027.jpg,copied,final/figures/yolo_predictions/prediction_04_000027.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000028.jpg,copied,final/figures/yolo_predictions/prediction_05_000028.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000029.jpg,copied,final/figures/yolo_predictions/prediction_06_000029.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000030.jpg,copied,final/figures/yolo_predictions/prediction_07_000030.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000031.jpg,copied,final/figures/yolo_predictions/prediction_08_000031.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000032.jpg,copied,final/figures/yolo_predictions/prediction_09_000032.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000033.jpg,copied,final/figures/yolo_predictions/prediction_10_000033.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000034.jpg,copied,final/figures/yolo_predictions/prediction_11_000034.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000035.jpg,copied,final/figures/yolo_predictions/prediction_12_000035.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000036.jpg,copied,final/figures/yolo_predictions/prediction_13_000036.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000037.jpg,copied,final/figures/yolo_predictions/prediction_14_000037.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000038.jpg,copied,final/figures/yolo_predictions/prediction_15_000038.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000039.jpg,copied,final/figures/yolo_predictions/prediction_16_000039.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000040.jpg,copied,final/figures/yolo_predictions/prediction_17_000040.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000041.jpg,copied,final/figures/yolo_predictions/prediction_18_000041.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000042.jpg,copied,final/figures/yolo_predictions/prediction_19_000042.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000043.jpg,copied,final/figures/yolo_predictions/prediction_20_000043.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000044.jpg,copied,final/figures/yolo_predictions/prediction_21_000044.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000045.jpg,copied,final/figures/yolo_predictions/prediction_22_000045.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000046.jpg,copied,final/figures/yolo_predictions/prediction_23_000046.jpg
+YOLO 预测示例,yolo_predictions,/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred/000047.jpg,copied,final/figures/yolo_predictions/prediction_24_000047.jpg

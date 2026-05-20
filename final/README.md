@@ -6,7 +6,7 @@
 
 - `figures/data_conversion/`：CARRADA Range-Angle 转换后的 GT 标注抽查图。
 - `figures/yolo_training/`：YOLO 训练曲线、PR/F1 曲线、混淆矩阵、验证批次图。
-- `figures/yolo_predictions/`：YOLO 推理展示图，当前复制 `18` 张。
+- `figures/yolo_predictions/`：YOLO 推理展示图，当前复制 `24` 张。
 - `figures/diagnostic_pipeline/`：GT 诊断检测 + SORT 跟踪闭环的大图。
 - `figures/tracking/`：SORT 连续帧跟踪可视化。
 - `tables/`：训练指标、诊断实验指标、数据规模和归档清单。
@@ -16,8 +16,8 @@
 ## 当前真实结果口径
 
 - 数据集：`carrada_ra_cpu10`，共 `5727` 张 RA PNG，`2425` 个标注框。
-- YOLO 训练目录：`runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu`。
-- YOLO 预测目录：`runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred`。
+- YOLO 训练目录：`/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu`。
+- YOLO 预测目录：`/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred`。
 - YOLO 当前已记录 epoch：`30`。
 - YOLO 当前 mAP50：`0.0157`。
 - 诊断闭环实验数量：`3`。

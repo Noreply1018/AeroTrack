@@ -2,8 +2,8 @@
 
 ## 训练来源
 
-- 训练目录：`runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu`
-- 预测目录：`runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred`
+- 训练目录：`/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_yolov8n_e30_cpu`
+- 预测目录：`/home/lh/projects/AeroTrack/runs/yolo_final_demo/carrada_ra_cpu10_showcase_pred`
 - 模型：YOLOv8n
 - 输入：CARRADA Range-Angle PNG
 - 设备：CPU
